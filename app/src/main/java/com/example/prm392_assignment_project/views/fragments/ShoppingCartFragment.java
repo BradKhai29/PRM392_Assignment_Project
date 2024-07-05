@@ -1,6 +1,7 @@
 package com.example.prm392_assignment_project.views.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -19,8 +20,9 @@ import com.example.prm392_assignment_project.helpers.ShoppingCartStateManager;
 import com.example.prm392_assignment_project.models.commons.ApiResponse;
 import com.example.prm392_assignment_project.models.commons.DeserializeResult;
 import com.example.prm392_assignment_project.models.shoppingcarts.ShoppingCartDto;
-import com.example.prm392_assignment_project.views.view_callbacks.IOnFailureCallback;
-import com.example.prm392_assignment_project.views.view_callbacks.IOnSuccessCallback;
+import com.example.prm392_assignment_project.views.screens.shopping_carts.ShoppingCartDetailActivity;
+import com.example.prm392_assignment_project.views.view_callbacks.IOnCallApiFailedCallback;
+import com.example.prm392_assignment_project.views.view_callbacks.IOnCallApiSuccessCallback;
 
 import org.json.JSONObject;
 
@@ -28,13 +30,19 @@ import org.json.JSONObject;
  * A fragment to handle UI logic related to the shopping cart.
  */
 public class ShoppingCartFragment extends Fragment {
+    /**
+     * This field is used to identify if the current fragment is completely loaded or not.
+     */
+    private boolean isLoadSuccess;
+    private ShoppingCartApiHandler shoppingCartApiHandler;
+
     // Init shopping cart callbacks.
-    private final IOnSuccessCallback onInitShoppingCartSuccessCallback;
-    private final IOnFailureCallback onInitShoppingCartFailedCallback;
+    private final IOnCallApiSuccessCallback onInitShoppingCartSuccessCallback;
+    private final IOnCallApiFailedCallback onInitShoppingCartFailedCallback;
 
     // Load shopping cart callbacks.
-    private final IOnSuccessCallback onLoadShoppingCartSuccessCallback;
-    private final IOnFailureCallback onLoadShoppingCartFailedCallback;
+    private final IOnCallApiSuccessCallback onLoadShoppingCartSuccessCallback;
+    private final IOnCallApiFailedCallback onLoadShoppingCartFailedCallback;
 
     private Context context;
 
@@ -42,6 +50,8 @@ public class ShoppingCartFragment extends Fragment {
     private Button btnShoppingCart;
 
     public ShoppingCartFragment() {
+        isLoadSuccess = false;
+
         // Init shopping cart.
         onInitShoppingCartSuccessCallback = this::handleInitShoppingCartResponse;
         onInitShoppingCartFailedCallback = this::handleInitShoppingCartFailure;
@@ -53,6 +63,7 @@ public class ShoppingCartFragment extends Fragment {
 
     public void setContext(Context context) {
         this.context = context;
+        shoppingCartApiHandler = new ShoppingCartApiHandler(context);
     }
 
     @Override
@@ -70,6 +81,18 @@ public class ShoppingCartFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_shopping_cart, container, false);
         btnShoppingCart = view.findViewById(R.id.btnShoppingCart);
 
+        // Setup on click listener for shopping cart btn.
+        btnShoppingCart.setOnClickListener(v -> {
+            if (!isLoadSuccess) {
+                Toast.makeText(context, "The fragment isn't completely loaded yet.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Intent goToShoppingCartDetailIntent = new Intent(context, ShoppingCartDetailActivity.class);
+
+            context.startActivity(goToShoppingCartDetailIntent);
+        });
+
         loadShoppingCartFromApi();
 
         return view;
@@ -82,17 +105,19 @@ public class ShoppingCartFragment extends Fragment {
     }
 
     private void loadShoppingCartFromApi() {
+        if (ShoppingCartStateManager.isShoppingCartLoadSuccess()) {
+            return;
+        }
+
         // Process to init or load the shopping cart from the webapi.
         if (ShoppingCartStateManager.isShoppingCartPreferenceExisted()) {
             ShoppingCartStateManager.loadShoppingCartIdFromPreference();
 
             String cartId = ShoppingCartStateManager.getCurrentShoppingCartId();
 
-            ShoppingCartApiHandler shoppingCartApiHandler = new ShoppingCartApiHandler(context);
             shoppingCartApiHandler.loadShoppingCartById(cartId, onLoadShoppingCartSuccessCallback, onLoadShoppingCartFailedCallback);
         }
         else {
-            ShoppingCartApiHandler shoppingCartApiHandler = new ShoppingCartApiHandler(context);
             shoppingCartApiHandler.initShoppingCart(onInitShoppingCartSuccessCallback, onInitShoppingCartFailedCallback);
         }
     }
@@ -106,6 +131,12 @@ public class ShoppingCartFragment extends Fragment {
 
             ShoppingCartStateManager.setCurrentShoppingCartId(shoppingCartId);
             ShoppingCartStateManager.setShoppingCartPreferenceValue(shoppingCartId);
+            ShoppingCartStateManager.clearShoppingCart();
+
+            String text = "Cart (" + ShoppingCartStateManager.getTotalItemsInCart() + ")";
+
+            btnShoppingCart.setText(text);
+            isLoadSuccess = true;
         }
         catch (Exception exception)
         {
@@ -143,9 +174,12 @@ public class ShoppingCartFragment extends Fragment {
 
             Log.e("Lấy giỏ hàng", "Thành công");
             ShoppingCartStateManager.setShoppingCart(shoppingCartDtoDeserializeResult.value);
+            ShoppingCartStateManager.loadShoppingCartSuccess();
+
             String text = "Cart (" + ShoppingCartStateManager.getTotalItemsInCart() + ")";
 
             btnShoppingCart.setText(text);
+            isLoadSuccess = true;
         }
         catch (Exception exception) {
             Toast.makeText(context, "Có lỗi xảy ra khi lấy giỏ hàng từ API", Toast.LENGTH_LONG).show();
@@ -153,6 +187,12 @@ public class ShoppingCartFragment extends Fragment {
     }
 
     private void handleLoadShoppingCartFailure(VolleyError error) {
-        //Toast.makeText(this, "Có lỗi xảy ra khi lấy giỏ hàng từ API", Toast.LENGTH_LONG).show();
+        if (error.networkResponse.statusCode == 400) {
+            shoppingCartApiHandler.initShoppingCart(onInitShoppingCartSuccessCallback, onInitShoppingCartFailedCallback);
+            Toast.makeText(context, "Thử tạo lại giỏ hàng từ API", Toast.LENGTH_LONG).show();
+        }
+        else {
+            Toast.makeText(context, "Có lỗi xảy ra khi lấy giỏ hàng từ API", Toast.LENGTH_LONG).show();
+        }
     }
 }

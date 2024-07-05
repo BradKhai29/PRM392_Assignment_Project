@@ -1,20 +1,23 @@
 package com.example.prm392_assignment_project.commons.requestbuilders;
 
-import com.android.volley.Request;
+import com.android.volley.AuthFailureError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
-import com.example.prm392_assignment_project.views.view_callbacks.IOnFailureCallback;
-import com.example.prm392_assignment_project.views.view_callbacks.IOnSuccessCallback;
+import com.example.prm392_assignment_project.views.view_callbacks.IOnCallApiFailedCallback;
+import com.example.prm392_assignment_project.views.view_callbacks.IOnCallApiSuccessCallback;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class RequestBuilder {
     protected String apiUrl;
     protected JSONObject requestBody;
-    protected IOnSuccessCallback successCallback;
-    protected IOnFailureCallback failureCallback;
+    protected IOnCallApiSuccessCallback successCallback;
+    protected IOnCallApiFailedCallback failureCallback;
     protected HttpMethod httpMethod;
+    private final Map<String, String> requestHttpHeaders;
 
     private static final JSONObject EMPTY_JSON_OBJECT;
 
@@ -28,6 +31,7 @@ public class RequestBuilder {
 
     public RequestBuilder(String apiUrl) {
         this.apiUrl = apiUrl;
+        requestHttpHeaders = new HashMap<>();
     }
 
     public void setApiUrl(String apiUrl) {
@@ -38,19 +42,44 @@ public class RequestBuilder {
         httpMethod = method;
     }
 
-    public RequestBuilder addBody(JSONObject requestBody) {
+    public RequestBuilder addJsonBody(JSONObject requestBody) {
         this.requestBody = requestBody;
+        HttpRequestHeader contentTypeJson = HttpRequestHeader.getInstance("Content-Type", "application/json; charset=utf-8");
+        addRequestHeader(contentTypeJson);
 
         return this;
     }
 
-    public RequestBuilder addOnSuccessCallback(IOnSuccessCallback callback) {
+    public RequestBuilder addRequestHeader(HttpRequestHeader requestHeader) {
+        if (requestHttpHeaders.containsKey(requestHeader.headerName)) {
+            return this;
+        }
+
+        requestHttpHeaders.put(requestHeader.headerName, requestHeader.headerValue);
+
+        return this;
+    }
+
+    public RequestBuilder addJwtBearerToken(String jwtToken) {
+        final String authorizationHeader = "Authorization";
+
+        if (requestHttpHeaders.containsKey(authorizationHeader)) {
+            return this;
+        }
+
+        final String bearerToken = "Bearer " + jwtToken;
+        requestHttpHeaders.put(authorizationHeader, bearerToken);
+
+        return this;
+    }
+
+    public RequestBuilder addOnSuccessCallback(IOnCallApiSuccessCallback callback) {
         successCallback = callback;
 
         return this;
     }
 
-    public RequestBuilder addOnFailureCallback(IOnFailureCallback callback) {
+    public RequestBuilder addOnFailureCallback(IOnCallApiFailedCallback callback) {
         failureCallback = callback;
 
         return this;
@@ -82,36 +111,20 @@ public class RequestBuilder {
             throw new IllegalArgumentException("Failure callback is not set");
         }
 
-        return new JsonObjectRequest(
+        JsonObjectRequest request = new JsonObjectRequest(
             httpMethod.getMethodCode(),
             apiUrl,
             requestBody,
             response -> successCallback.resolve(response),
-            error -> failureCallback.resolve(error));
-    }
+            error -> failureCallback.resolve(error))
+        {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                return requestHttpHeaders;
+            }
+        };
 
-    public StringRequest build() {
-        if (apiUrl == null) {
-            throw new IllegalArgumentException("Api Url cannot be null");
-        }
-
-        if (httpMethod == null) {
-            throw new IllegalArgumentException("Http Method is not set");
-        }
-
-        if (successCallback == null) {
-            throw new IllegalArgumentException("Success callback is not set");
-        }
-
-        if (failureCallback == null) {
-            throw new IllegalArgumentException("Failure callback is not set");
-        }
-
-        return new StringRequest(
-            httpMethod.getMethodCode(),
-            apiUrl,
-            response -> successCallback.resolve(null),
-            error -> failureCallback.resolve(null));
+        return request;
     }
 
     public static RequestBuilder getInstance(String apiUrl) {

@@ -17,6 +17,12 @@
         android:theme="@style/Theme.PRM392_Assignment_Project"
         tools:targetApi="31">
         <activity
+            android:name=".views.screens.checkouts.CheckoutPage"
+            android:exported="false" />
+        <activity
+            android:name=".views.screens.shopping_carts.ShoppingCartDetailActivity"
+            android:exported="false" />
+        <activity
             android:name=".views.screens.products.ProductDetailActivity"
             android:exported="false" />
         <activity

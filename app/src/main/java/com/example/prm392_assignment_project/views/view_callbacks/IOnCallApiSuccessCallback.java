@@ -5,6 +5,6 @@ import org.json.JSONObject;
 /**
  * This interface provide mechanism to handle callback for UI update.
  */
-public interface IOnSuccessCallback {
+public interface IOnCallApiSuccessCallback {
     void resolve(JSONObject response);
 }

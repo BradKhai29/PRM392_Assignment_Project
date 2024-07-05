@@ -2,7 +2,6 @@ package com.example.prm392_assignment_project.models.shoppingcarts;
 
 import com.example.prm392_assignment_project.models.commons.DeserializeResult;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -28,11 +27,30 @@ public class CartItemDto {
         return cartItemInJson;
     }
 
-    public static CartItemDto getInstance(String cartId, String productId, int quantity) {
+    public static CartItemDto getInstanceToCallApi(String cartId, String productId, int quantity) {
         CartItemDto cartItemDto = new CartItemDto();
 
         cartItemDto.cartId = cartId;
         cartItemDto.productId = productId;
+        cartItemDto.quantity = quantity;
+
+        return cartItemDto;
+    }
+
+    public static CartItemDto getInstanceToAdd(
+        String cartId,
+        String productId,
+        String productName,
+        int unitPrice,
+        String imageUrl,
+        int quantity) {
+        CartItemDto cartItemDto = new CartItemDto();
+
+        cartItemDto.cartId = cartId;
+        cartItemDto.productId = productId;
+        cartItemDto.productName = productName;
+        cartItemDto.unitPrice = unitPrice;
+        cartItemDto.imageUrl = imageUrl;
         cartItemDto.quantity = quantity;
 
         return cartItemDto;

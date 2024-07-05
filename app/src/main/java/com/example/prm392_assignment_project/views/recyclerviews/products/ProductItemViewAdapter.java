@@ -20,7 +20,11 @@ public class ProductItemViewAdapter extends RecyclerView.Adapter<ProductItemView
     private final List<GeneralProductInfoDto> products;
     private final IOnAddToCartCallback onAddToCartCallback;
 
-    public ProductItemViewAdapter(Context context, List<GeneralProductInfoDto> products, IOnAddToCartCallback onAddToCartCallback) {
+    public ProductItemViewAdapter(
+        Context context,
+        List<GeneralProductInfoDto> products,
+        IOnAddToCartCallback onAddToCartCallback)
+    {
         this.context = context;
         this.products = products;
         this.onAddToCartCallback = onAddToCartCallback;
@@ -36,7 +40,6 @@ public class ProductItemViewAdapter extends RecyclerView.Adapter<ProductItemView
 
     @Override
     public void onBindViewHolder(@NonNull ProductItemViewHolder holder, int position) {
-        Log.d("Product Item", "Binding Position: " + position);
         GeneralProductInfoDto productInfo = products.get(position);
 
         if (productInfo == null) {
@@ -45,8 +48,8 @@ public class ProductItemViewAdapter extends RecyclerView.Adapter<ProductItemView
 
         // Populate product information.
         holder.setProductId(productInfo.getId());
-        holder.setImage(productInfo.getImageUrls().get(0));
         holder.setProductName(productInfo.getName());
+        holder.setImage(productInfo.getImageUrls().get(0));
         holder.setProductPrice(productInfo.getUnitPrice());
     }
 

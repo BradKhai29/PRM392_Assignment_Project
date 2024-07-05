@@ -8,8 +8,8 @@ import com.android.volley.toolbox.Volley;
 import com.example.prm392_assignment_project.commons.requestbuilders.HttpMethod;
 import com.example.prm392_assignment_project.commons.requestbuilders.RequestBuilder;
 import com.example.prm392_assignment_project.api_handlers.base.ApiHandler;
-import com.example.prm392_assignment_project.views.view_callbacks.IOnFailureCallback;
-import com.example.prm392_assignment_project.views.view_callbacks.IOnSuccessCallback;
+import com.example.prm392_assignment_project.views.view_callbacks.IOnCallApiFailedCallback;
+import com.example.prm392_assignment_project.views.view_callbacks.IOnCallApiSuccessCallback;
 
 public class ProductApiHandler extends ApiHandler {
     public static final String API_URL = BASE_URL + "/product";
@@ -22,8 +22,8 @@ public class ProductApiHandler extends ApiHandler {
 
     public void getAllProducts(
         int totalProduct,
-        IOnSuccessCallback successCallback,
-        IOnFailureCallback failureCallback)
+        IOnCallApiSuccessCallback successCallback,
+        IOnCallApiFailedCallback failureCallback)
     {
         if (totalProduct <= 0) {
             totalProduct = 4;
@@ -43,8 +43,8 @@ public class ProductApiHandler extends ApiHandler {
 
     public void getProductDetailById(
         String productId,
-        IOnSuccessCallback successCallback,
-        IOnFailureCallback failureCallback)
+        IOnCallApiSuccessCallback successCallback,
+        IOnCallApiFailedCallback failureCallback)
     {
         RequestBuilder requestBuilder = RequestBuilder.getInstance(API_URL + "/" + productId);
 

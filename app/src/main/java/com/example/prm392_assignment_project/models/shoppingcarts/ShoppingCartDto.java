@@ -48,19 +48,62 @@ public class ShoppingCartDto {
     public void addCartItem(CartItemDto cartItem) {
         if (cartItemMap.containsKey(cartItem.productId)) {
             CartItemDto foundCartItem = cartItemMap.get(cartItem.productId);
-
-            Objects.requireNonNull(foundCartItem).quantity += cartItem.quantity;
-            totalItems += cartItem.quantity;
-
-            return;
+            foundCartItem.quantity += cartItem.quantity;
+        }
+        else {
+            this.cartItemMap.put(cartItem.productId, cartItem);
         }
 
-        this.cartItemMap.put(cartItem.productId, cartItem);
         totalItems += cartItem.quantity;
+        totalPrice += cartItem.quantity * cartItem.unitPrice;
+    }
+
+    public void increaseCartItem(String itemId, int increaseQuantity) {
+        if (cartItemMap.containsKey(itemId)) {
+            CartItemDto foundCartItem = cartItemMap.get(itemId);
+            foundCartItem.quantity += increaseQuantity;
+
+            totalItems += increaseQuantity;
+            totalPrice += foundCartItem.unitPrice * increaseQuantity;
+        }
+    }
+
+    public void decreaseCartItem(String itemId, int decreaseQuantity) {
+        if (cartItemMap.containsKey(itemId)) {
+            CartItemDto foundCartItem = cartItemMap.get(itemId);
+            foundCartItem.quantity -= decreaseQuantity;
+
+            totalItems -= decreaseQuantity;
+            totalPrice -= foundCartItem.unitPrice * decreaseQuantity;
+        }
+    }
+
+    public void removeCartItem(String itemId) {
+        if (cartItemMap.containsKey(itemId)) {
+            CartItemDto foundCartItem = cartItemMap.get(itemId);
+
+            cartItemMap.remove(itemId);
+            totalItems -= foundCartItem.quantity;
+            totalPrice -= foundCartItem.subTotal();
+        }
     }
 
     public int getTotalItems() {
         return totalItems;
+    }
+
+    public List<CartItemDto> getCartItems() {
+        List<CartItemDto> cartItems = new ArrayList<>(cartItemMap.size());
+
+        for (Map.Entry<String, CartItemDto> cartItemEntry : cartItemMap.entrySet()) {
+            cartItems.add(cartItemEntry.getValue());
+        }
+
+        return cartItems;
+    }
+
+    public void clear() {
+        cartItemMap.clear();
     }
 
     public static DeserializeResult<ShoppingCartDto> DeserializeFromJson(JSONObject shoppingCartJson) {
@@ -91,6 +134,7 @@ public class ShoppingCartDto {
             }
 
             ShoppingCartDto shoppingCartDto = new ShoppingCartDto(cartItems);
+
             shoppingCartDto.cartId = cartId;
             shoppingCartDto.totalPrice = totalPrice;
             shoppingCartDto.totalItems = totalItems;

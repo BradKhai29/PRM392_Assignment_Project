@@ -27,8 +27,8 @@ import com.example.prm392_assignment_project.models.shoppingcarts.ShoppingCartDt
 import com.example.prm392_assignment_project.views.fragments.ShoppingCartFragment;
 import com.example.prm392_assignment_project.views.recyclerviews.products.ProductItemViewAdapter;
 import com.example.prm392_assignment_project.views.view_callbacks.IOnAddToCartCallback;
-import com.example.prm392_assignment_project.views.view_callbacks.IOnFailureCallback;
-import com.example.prm392_assignment_project.views.view_callbacks.IOnSuccessCallback;
+import com.example.prm392_assignment_project.views.view_callbacks.IOnCallApiFailedCallback;
+import com.example.prm392_assignment_project.views.view_callbacks.IOnCallApiSuccessCallback;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -38,16 +38,16 @@ import java.util.List;
 
 public class HomeActivity extends AppCompatActivity {
     // Load product callbacks.
-    private final IOnFailureCallback onLoadProductFailedCallback;
-    private final IOnSuccessCallback onLoadProductSuccessCallback;
+    private final IOnCallApiFailedCallback onLoadProductFailedCallback;
+    private final IOnCallApiSuccessCallback onLoadProductSuccessCallback;
 
     // Init shopping cart callbacks.
-    private final IOnSuccessCallback onInitShoppingCartSuccessCallback;
-    private final IOnFailureCallback onInitShoppingCartFailedCallback;
+    private final IOnCallApiSuccessCallback onInitShoppingCartSuccessCallback;
+    private final IOnCallApiFailedCallback onInitShoppingCartFailedCallback;
 
     // Load shopping cart callbacks.
-    private final IOnSuccessCallback onLoadShoppingCartSuccessCallback;
-    private final IOnFailureCallback onLoadShoppingCartFailedCallback;
+    private final IOnCallApiSuccessCallback onLoadShoppingCartSuccessCallback;
+    private final IOnCallApiFailedCallback onLoadShoppingCartFailedCallback;
 
     // Add to cart callback.
     private final IOnAddToCartCallback onAddToCartCallback;
@@ -56,6 +56,9 @@ public class HomeActivity extends AppCompatActivity {
     private RecyclerView productItemRecyclerView;
     private ShoppingCartFragment shoppingCartFragment;
     private final List<GeneralProductInfoDto> products;
+
+    // Constants that used in app.
+    private final String SHOPPING_CART_FRAGMENT_TAG = "shopping_cart";
 
     public HomeActivity() {
         // Load products.
@@ -96,11 +99,19 @@ public class HomeActivity extends AppCompatActivity {
         shoppingCartFragment = new ShoppingCartFragment();
         shoppingCartFragment.setContext(this);
 
-        fragmentTransaction.add(R.id.fragment_container_view, shoppingCartFragment, "");
+        fragmentTransaction.add(R.id.fragment_container_view, shoppingCartFragment, SHOPPING_CART_FRAGMENT_TAG);
         fragmentTransaction.commit();
 
-        //loadShoppingCartFromApi();
         loadAllProductsFromApi();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (ShoppingCartStateManager.hasChangesInState()) {
+            shoppingCartFragment.reloadShoppingCart();
+        }
     }
 
     ///region View components and dependency setup section.
@@ -110,7 +121,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setUpRecyclerView() {
-        productItemRecyclerView = findViewById(R.id.recyclerView);
+        productItemRecyclerView = findViewById(R.id.productListRecyclerView);
 
         // Configure the layout manager for recycler view.
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);

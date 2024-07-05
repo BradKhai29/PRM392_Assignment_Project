@@ -5,19 +5,18 @@ import android.content.Context;
 import com.example.prm392_assignment_project.models.shoppingcarts.ShoppingCartDto;
 
 public class ShoppingCartStateManager {
-    private static Context appContext;
     private static SharedPreferenceHelper sharedPreferenceHelper;
     private static final String SHOPPING_CART_ID_PREFERENCE_KEY = "shoppingCartId";
     private static String currentShoppingCartId;
-    private static boolean loadShoppingCartSuccessFromApi;
+    private static boolean loadShoppingCartSuccessFromApi = false;
     private static ShoppingCartDto shoppingCart;
+    private static boolean hasChangesInState = false;
 
     public static void setupSharedPreferenceHelper(Context context) {
         if (sharedPreferenceHelper != null) {
             return;
         }
 
-        appContext = context;
         sharedPreferenceHelper = new SharedPreferenceHelper(context);
     }
 
@@ -35,7 +34,6 @@ public class ShoppingCartStateManager {
      * Set the value of input cartId into this application shared preference
      * for next time retrieval.
      * @param cartId CartId that used to get the shopping cart detail from API.
-     * @throws Exception
      */
     public static void setShoppingCartPreferenceValue(String cartId) throws Exception {
         if (sharedPreferenceHelper == null) {
@@ -48,9 +46,20 @@ public class ShoppingCartStateManager {
         currentShoppingCartId = cartId;
     }
 
+    public static void clearShoppingCart() {
+        shoppingCart.clear();
+    }
+
     public static String getCurrentShoppingCartId() {
-//        return currentShoppingCartId;
-        return "ec4a7d99-ccd0-44b1-9392-5fdb8c9584be";
+        return currentShoppingCartId;
+    }
+
+    public static void loadShoppingCartSuccess() {
+        loadShoppingCartSuccessFromApi = true;
+    }
+
+    public static boolean isShoppingCartLoadSuccess() {
+        return loadShoppingCartSuccessFromApi;
     }
 
     public static void setShoppingCart(ShoppingCartDto shoppingCartDto) {
@@ -63,5 +72,21 @@ public class ShoppingCartStateManager {
 
     public static int getTotalItemsInCart() {
         return shoppingCart.getTotalItems();
+    }
+
+    public static int getTotalPrice() {
+        return shoppingCart.getTotalPrice();
+    }
+
+    public static boolean hasChangesInState() {
+        return hasChangesInState;
+    }
+
+    public static void addChanges() {
+        hasChangesInState = true;
+    }
+
+    public static void confirmChangeInState() {
+        hasChangesInState = false;
     }
 }
