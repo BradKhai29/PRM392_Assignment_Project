@@ -17,7 +17,13 @@
         android:theme="@style/Theme.PRM392_Assignment_Project"
         tools:targetApi="31">
         <activity
-            android:name=".views.screens.checkouts.CheckoutPage"
+            android:name=".views.screens.orders.OrderDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.screens.orders.OrderHistoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.screens.checkouts.CheckoutActivity"
             android:exported="false" />
         <activity
             android:name=".views.screens.shopping_carts.ShoppingCartDetailActivity"

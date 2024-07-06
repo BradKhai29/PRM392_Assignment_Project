@@ -1,7 +1,6 @@
 package com.example.prm392_assignment_project.views.recyclerviews.products;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.prm392_assignment_project.R;
-import com.example.prm392_assignment_project.models.products.GeneralProductInfoDto;
+import com.example.prm392_assignment_project.models.dtos.products.GeneralProductInfoDto;
 import com.example.prm392_assignment_project.views.view_callbacks.IOnAddToCartCallback;
 
 import java.util.List;

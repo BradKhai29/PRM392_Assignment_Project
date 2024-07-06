@@ -2,7 +2,7 @@ package com.example.prm392_assignment_project.helpers;
 
 import android.content.Context;
 
-import com.example.prm392_assignment_project.models.shoppingcarts.ShoppingCartDto;
+import com.example.prm392_assignment_project.models.dtos.shoppingcarts.ShoppingCartDto;
 
 public class ShoppingCartStateManager {
     private static SharedPreferenceHelper sharedPreferenceHelper;

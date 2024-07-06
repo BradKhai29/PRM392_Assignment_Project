@@ -1,4 +1,4 @@
-package com.example.prm392_assignment_project.models.products;
+package com.example.prm392_assignment_project.models.dtos.products;
 
 import com.example.prm392_assignment_project.models.commons.DeserializeResult;
 
@@ -63,15 +63,15 @@ public class GeneralProductInfoDto {
         this.imageUrls = imageUrls;
     }
 
-    public static DeserializeResult<GeneralProductInfoDto> DeserializeFromJson(JSONObject jsonObject)
+    public static DeserializeResult<GeneralProductInfoDto> DeserializeFromJson(JSONObject jsonData)
     {
         try {
-            String productId = jsonObject.getString("id");
-            String productName = jsonObject.getString("name");
-            String category = jsonObject.getString("category");
-            int unitPrice = jsonObject.getInt("unitPrice");
+            String productId = jsonData.getString("id");
+            String productName = jsonData.getString("name");
+            String category = jsonData.getString("category");
+            int unitPrice = jsonData.getInt("unitPrice");
 
-            JSONArray imageJsonArray = jsonObject.getJSONArray("imageUrls");
+            JSONArray imageJsonArray = jsonData.getJSONArray("imageUrls");
             List<String> imageUrls = new ArrayList<>(imageJsonArray.length());
             int imageArrayLength = imageJsonArray.length();
 

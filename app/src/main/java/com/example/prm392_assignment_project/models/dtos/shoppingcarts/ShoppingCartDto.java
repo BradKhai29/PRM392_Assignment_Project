@@ -1,4 +1,4 @@
-package com.example.prm392_assignment_project.models.shoppingcarts;
+package com.example.prm392_assignment_project.models.dtos.shoppingcarts;
 
 import com.example.prm392_assignment_project.models.commons.DeserializeResult;
 
@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class ShoppingCartDto {
     private String cartId;
@@ -104,15 +103,17 @@ public class ShoppingCartDto {
 
     public void clear() {
         cartItemMap.clear();
+        totalItems = 0;
+        totalPrice = 0;
     }
 
-    public static DeserializeResult<ShoppingCartDto> DeserializeFromJson(JSONObject shoppingCartJson) {
+    public static DeserializeResult<ShoppingCartDto> DeserializeFromJson(JSONObject jsonData) {
         try {
-            String cartId = shoppingCartJson.getString("cartId");
-            int totalPrice = shoppingCartJson.getInt("totalPrice");
+            String cartId = jsonData.getString("cartId");
+            int totalPrice = jsonData.getInt("totalPrice");
 
             // Deserialize the cart item list from json.
-            JSONArray cartItemListInJson = shoppingCartJson.getJSONArray("cartItems");
+            JSONArray cartItemListInJson = jsonData.getJSONArray("cartItems");
 
             int cartItemsLength = cartItemListInJson.length();
             List<CartItemDto> cartItems = new ArrayList<>(cartItemsLength);

@@ -22,9 +22,9 @@ import com.example.prm392_assignment_project.api_handlers.implementation.Shoppin
 import com.example.prm392_assignment_project.helpers.ShoppingCartStateManager;
 import com.example.prm392_assignment_project.models.commons.ApiResponse;
 import com.example.prm392_assignment_project.models.commons.DeserializeResult;
-import com.example.prm392_assignment_project.models.products.DetailProductInfoDto;
-import com.example.prm392_assignment_project.models.shoppingcarts.CartItemDto;
-import com.example.prm392_assignment_project.models.shoppingcarts.ShoppingCartDto;
+import com.example.prm392_assignment_project.models.dtos.products.DetailProductInfoDto;
+import com.example.prm392_assignment_project.models.dtos.shoppingcarts.CartItemDto;
+import com.example.prm392_assignment_project.models.dtos.shoppingcarts.ShoppingCartDto;
 import com.example.prm392_assignment_project.views.fragments.ShoppingCartFragment;
 import com.example.prm392_assignment_project.views.view_callbacks.IOnCallApiFailedCallback;
 import com.example.prm392_assignment_project.views.view_callbacks.IOnCallApiSuccessCallback;

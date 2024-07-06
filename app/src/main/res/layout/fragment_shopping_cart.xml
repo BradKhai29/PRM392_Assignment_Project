@@ -10,6 +10,7 @@
     android:background="@color/black">
 
     <RelativeLayout
+        android:id="@+id/wrapper"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -23,6 +24,13 @@
             android:textColor="@color/white"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"/>
+
+        <Button
+            android:id="@+id/btnViewOrderHistory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="Order History"/>
 
         <Button
             android:id="@+id/btnShoppingCart"

@@ -14,7 +14,7 @@ import com.android.volley.VolleyError;
 import com.example.prm392_assignment_project.R;
 import com.example.prm392_assignment_project.api_handlers.implementation.ShoppingCartApiHandler;
 import com.example.prm392_assignment_project.helpers.ShoppingCartStateManager;
-import com.example.prm392_assignment_project.models.shoppingcarts.CartItemDto;
+import com.example.prm392_assignment_project.models.dtos.shoppingcarts.CartItemDto;
 import com.example.prm392_assignment_project.views.view_callbacks.IOnUpdateCartCallback;
 import com.example.prm392_assignment_project.views.view_callbacks.support_enums.UpdateCartType;
 import com.example.prm392_assignment_project.views.view_callbacks.support_models.UpdateCartActionDetail;

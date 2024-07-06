@@ -22,8 +22,8 @@ import com.example.prm392_assignment_project.api_handlers.implementation.Shoppin
 import com.example.prm392_assignment_project.helpers.ShoppingCartStateManager;
 import com.example.prm392_assignment_project.models.commons.ApiResponse;
 import com.example.prm392_assignment_project.models.commons.DeserializeResult;
-import com.example.prm392_assignment_project.models.products.GeneralProductInfoDto;
-import com.example.prm392_assignment_project.models.shoppingcarts.ShoppingCartDto;
+import com.example.prm392_assignment_project.models.dtos.products.GeneralProductInfoDto;
+import com.example.prm392_assignment_project.models.dtos.shoppingcarts.ShoppingCartDto;
 import com.example.prm392_assignment_project.views.fragments.ShoppingCartFragment;
 import com.example.prm392_assignment_project.views.recyclerviews.products.ProductItemViewAdapter;
 import com.example.prm392_assignment_project.views.view_callbacks.IOnAddToCartCallback;
@@ -52,9 +52,8 @@ public class HomeActivity extends AppCompatActivity {
     // Add to cart callback.
     private final IOnAddToCartCallback onAddToCartCallback;
 
-    // Private fields and components section.
-    private RecyclerView productItemRecyclerView;
     private ShoppingCartFragment shoppingCartFragment;
+    private ProductItemViewAdapter productItemViewAdapter;
     private final List<GeneralProductInfoDto> products;
 
     // Constants that used in app.
@@ -121,13 +120,17 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setUpRecyclerView() {
-        productItemRecyclerView = findViewById(R.id.productListRecyclerView);
+        // Private fields and components section.
+        RecyclerView productItemRecyclerView = findViewById(R.id.productListRecyclerView);
 
         // Configure the layout manager for recycler view.
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(RecyclerView.VERTICAL);
 
         productItemRecyclerView.setLayoutManager(linearLayoutManager);
+
+        productItemViewAdapter = new ProductItemViewAdapter(HomeActivity.this, products, onAddToCartCallback);
+        productItemRecyclerView.setAdapter(productItemViewAdapter);
     }
     ///endregion
 
@@ -190,12 +193,15 @@ public class HomeActivity extends AppCompatActivity {
         }
 
         ApiResponse apiResponse = result.value;
-        try {
+
+        try
+        {
             JSONObject responseBodyInJson = apiResponse.getBodyAsJsonObject();
             DeserializeResult<ShoppingCartDto> shoppingCartDtoDeserializeResult
                     = ShoppingCartDto.DeserializeFromJson(responseBodyInJson);
 
-            if (!shoppingCartDtoDeserializeResult.isSuccess) {
+            if (!shoppingCartDtoDeserializeResult.isSuccess)
+            {
                 Toast.makeText(this, "Có lỗi xảy ra khi lấy giỏ hàng từ API", Toast.LENGTH_LONG).show();
                 return;
             }
@@ -203,7 +209,8 @@ public class HomeActivity extends AppCompatActivity {
             Toast.makeText(this, "Lấy giỏ hàng từ API thành công", Toast.LENGTH_LONG).show();
             ShoppingCartStateManager.setShoppingCart(shoppingCartDtoDeserializeResult.value);
         }
-        catch (Exception exception) {
+        catch (Exception exception)
+        {
             Toast.makeText(this, "Có lỗi xảy ra khi lấy giỏ hàng từ API", Toast.LENGTH_LONG).show();
         }
     }
@@ -229,18 +236,17 @@ public class HomeActivity extends AppCompatActivity {
 
             for (byte index = 0; index < productListLength; index++) {
                 JSONObject productJson = productListInJson.getJSONObject(index);
+
                 DeserializeResult<GeneralProductInfoDto> deserializeResult = GeneralProductInfoDto.DeserializeFromJson(productJson);
 
-                if (deserializeResult.isSuccess) {
+                if (deserializeResult.isSuccess)
+                {
                     GeneralProductInfoDto productItem = deserializeResult.value;
 
                     products.add(productItem);
+                    productItemViewAdapter.notifyItemInserted(index);
                 }
             }
-
-            ProductItemViewAdapter productItemViewAdapter = new ProductItemViewAdapter(HomeActivity.this, products, onAddToCartCallback);
-            productItemRecyclerView.setAdapter(productItemViewAdapter);
-            productItemRecyclerView.setVisibility(View.VISIBLE);
 
             Toast.makeText(this, "Lấy danh sách sản phẩm thành công", Toast.LENGTH_LONG).show();
         }

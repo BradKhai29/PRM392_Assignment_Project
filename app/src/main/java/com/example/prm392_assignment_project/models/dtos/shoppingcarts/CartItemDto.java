@@ -1,11 +1,12 @@
-package com.example.prm392_assignment_project.models.shoppingcarts;
+package com.example.prm392_assignment_project.models.dtos.shoppingcarts;
 
 import com.example.prm392_assignment_project.models.commons.DeserializeResult;
+import com.example.prm392_assignment_project.models.dtos.base.IApiInputDto;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class CartItemDto {
+public class CartItemDto implements IApiInputDto {
     public String cartId;
     public String productId;
     public String productName;
@@ -56,13 +57,13 @@ public class CartItemDto {
         return cartItemDto;
     }
 
-    public static DeserializeResult<CartItemDto> DeserializeFromJson(JSONObject cartItemInJson) {
+    public static DeserializeResult<CartItemDto> DeserializeFromJson(JSONObject jsonData) {
         try{
-            String productId = cartItemInJson.getString("productId");
-            String productName = cartItemInJson.getString("productName");
-            int unitPrice = cartItemInJson.getInt("unitPrice");
-            int quantity = cartItemInJson.getInt("quantity");
-            String imageUrl = cartItemInJson.getString("imageUrl");
+            String productId = jsonData.getString("productId");
+            String productName = jsonData.getString("productName");
+            int unitPrice = jsonData.getInt("unitPrice");
+            int quantity = jsonData.getInt("quantity");
+            String imageUrl = jsonData.getString("imageUrl");
 
             // Init the cart item.
             CartItemDto cartItemDto = new CartItemDto();

@@ -9,7 +9,7 @@ import com.example.prm392_assignment_project.commons.requestbuilders.HttpMethod;
 import com.example.prm392_assignment_project.commons.requestbuilders.HttpRequestHeader;
 import com.example.prm392_assignment_project.commons.requestbuilders.RequestBuilder;
 import com.example.prm392_assignment_project.api_handlers.base.ApiHandler;
-import com.example.prm392_assignment_project.models.shoppingcarts.CartItemDto;
+import com.example.prm392_assignment_project.models.dtos.shoppingcarts.CartItemDto;
 import com.example.prm392_assignment_project.views.view_callbacks.IOnCallApiFailedCallback;
 import com.example.prm392_assignment_project.views.view_callbacks.IOnCallApiSuccessCallback;
 

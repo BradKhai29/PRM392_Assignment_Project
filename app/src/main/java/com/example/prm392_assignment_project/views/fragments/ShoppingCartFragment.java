@@ -19,7 +19,8 @@ import com.example.prm392_assignment_project.api_handlers.implementation.Shoppin
 import com.example.prm392_assignment_project.helpers.ShoppingCartStateManager;
 import com.example.prm392_assignment_project.models.commons.ApiResponse;
 import com.example.prm392_assignment_project.models.commons.DeserializeResult;
-import com.example.prm392_assignment_project.models.shoppingcarts.ShoppingCartDto;
+import com.example.prm392_assignment_project.models.dtos.shoppingcarts.ShoppingCartDto;
+import com.example.prm392_assignment_project.views.screens.orders.OrderHistoryActivity;
 import com.example.prm392_assignment_project.views.screens.shopping_carts.ShoppingCartDetailActivity;
 import com.example.prm392_assignment_project.views.view_callbacks.IOnCallApiFailedCallback;
 import com.example.prm392_assignment_project.views.view_callbacks.IOnCallApiSuccessCallback;
@@ -48,6 +49,7 @@ public class ShoppingCartFragment extends Fragment {
 
     // UI components.
     private Button btnShoppingCart;
+    private Button btnViewOrderHistory;
 
     public ShoppingCartFragment() {
         isLoadSuccess = false;
@@ -80,22 +82,33 @@ public class ShoppingCartFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_shopping_cart, container, false);
         btnShoppingCart = view.findViewById(R.id.btnShoppingCart);
+        btnViewOrderHistory = view.findViewById(R.id.btnViewOrderHistory);
 
         // Setup on click listener for shopping cart btn.
-        btnShoppingCart.setOnClickListener(v -> {
-            if (!isLoadSuccess) {
-                Toast.makeText(context, "The fragment isn't completely loaded yet.", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            Intent goToShoppingCartDetailIntent = new Intent(context, ShoppingCartDetailActivity.class);
-
-            context.startActivity(goToShoppingCartDetailIntent);
-        });
+        btnShoppingCart.setOnClickListener(this::viewShoppingCartDetail);
+        btnViewOrderHistory.setOnClickListener(this::viewOrderHistory);
 
         loadShoppingCartFromApi();
 
         return view;
+    }
+
+    private void viewShoppingCartDetail(View view)
+    {
+        if (!isLoadSuccess)
+        {
+            Toast.makeText(context, "The fragment isn't completely loaded yet.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Intent viewShoppingCartDetailIntent = new Intent(context, ShoppingCartDetailActivity.class);
+        context.startActivity(viewShoppingCartDetailIntent);
+    }
+
+    private void viewOrderHistory(View view)
+    {
+        Intent viewOrderHistoryIntent = new Intent(context, OrderHistoryActivity.class);
+        context.startActivity(viewOrderHistoryIntent);
     }
 
     public void reloadShoppingCart() {
