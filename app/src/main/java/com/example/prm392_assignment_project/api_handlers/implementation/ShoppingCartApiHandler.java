@@ -2,9 +2,7 @@ package com.example.prm392_assignment_project.api_handlers.implementation;
 
 import android.content.Context;
 
-import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.example.prm392_assignment_project.commons.requestbuilders.HttpMethod;
 import com.example.prm392_assignment_project.commons.requestbuilders.HttpRequestHeader;
 import com.example.prm392_assignment_project.commons.requestbuilders.RequestBuilder;
@@ -24,15 +22,13 @@ public class ShoppingCartApiHandler extends ApiHandler {
     public static final String DECREASE_CART_ITEM_QUANTITY_ENDPOINT = API_URL + "/decrease";
     public static final String REMOVE_CART_ITEM_QUANTITY_ENDPOINT = API_URL;
 
-    private final RequestQueue requestQueue;
-    private final Context context;
-
-    public ShoppingCartApiHandler(Context context) {
-        this.context = context;
-        requestQueue = Volley.newRequestQueue(context);
+    public ShoppingCartApiHandler(Context context)
+    {
+        super(context);
     }
 
-    public void initShoppingCart(IOnCallApiSuccessCallback successCallback, IOnCallApiFailedCallback failureCallback) {
+    public void initShoppingCart(IOnCallApiSuccessCallback successCallback, IOnCallApiFailedCallback failureCallback)
+    {
         RequestBuilder requestBuilder = RequestBuilder.getInstance(INIT_SHOPPING_CART_ENDPOINT);
 
         requestBuilder.withMethod(HttpMethod.POST);
@@ -44,7 +40,8 @@ public class ShoppingCartApiHandler extends ApiHandler {
         requestQueue.add(request);
     }
 
-    public void loadShoppingCartById(String cartId, IOnCallApiSuccessCallback successCallback, IOnCallApiFailedCallback failureCallback) {
+    public void loadShoppingCartById(String cartId, IOnCallApiSuccessCallback successCallback, IOnCallApiFailedCallback failureCallback)
+    {
         final String apiUrl = LOAD_SHOPPING_CART_BY_ENDPOINT + "/" + cartId;
         RequestBuilder requestBuilder = RequestBuilder.getInstance(apiUrl);
 
@@ -67,7 +64,7 @@ public class ShoppingCartApiHandler extends ApiHandler {
         requestBuilder.withMethod(HttpMethod.POST);
 
         // Init the request body.
-        JSONObject requestBody = cartItem.toJsonObject();
+        JSONObject requestBody = cartItem.toJson();
         requestBuilder.addJsonBody(requestBody);
 
         requestBuilder.addOnSuccessCallback(successCallback);
@@ -88,7 +85,7 @@ public class ShoppingCartApiHandler extends ApiHandler {
         requestBuilder.withMethod(HttpMethod.PUT);
 
         // Init the request body.
-        JSONObject requestBody = cartItemToDecrease.toJsonObject();
+        JSONObject requestBody = cartItemToDecrease.toJson();
         requestBuilder.addJsonBody(requestBody);
 
         requestBuilder.addOnSuccessCallback(successCallback);

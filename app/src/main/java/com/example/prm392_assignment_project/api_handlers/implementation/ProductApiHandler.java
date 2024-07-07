@@ -14,10 +14,10 @@ import com.example.prm392_assignment_project.views.view_callbacks.IOnCallApiSucc
 public class ProductApiHandler extends ApiHandler {
     public static final String API_URL = BASE_URL + "/product";
     public static final String GET_ALL_PRODUCTS_ENDPOINT = API_URL + "/all";
-    private final RequestQueue requestQueue;
 
-    public ProductApiHandler(Context context) {
-        requestQueue = Volley.newRequestQueue(context);
+    public ProductApiHandler(Context context)
+    {
+        super(context);
     }
 
     public void getAllProducts(

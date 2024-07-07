@@ -6,34 +6,37 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.prm392_assignment_project.api_handlers.base.ApiHandler;
 import com.example.prm392_assignment_project.commons.requestbuilders.HttpMethod;
 import com.example.prm392_assignment_project.commons.requestbuilders.RequestBuilder;
-import com.example.prm392_assignment_project.models.dtos.checkouts.CheckoutDetailDto;
+import com.example.prm392_assignment_project.models.dtos.auths.LoginRequestDto;
+import com.example.prm392_assignment_project.models.dtos.auths.RefreshAccessTokenDto;
+import com.example.prm392_assignment_project.models.dtos.auths.RegisterDto;
 import com.example.prm392_assignment_project.views.view_callbacks.IOnCallApiFailedCallback;
 import com.example.prm392_assignment_project.views.view_callbacks.IOnCallApiSuccessCallback;
 
 import org.json.JSONException;
 
-public class OrderApiHandler extends ApiHandler {
-    public static final String API_URL = BASE_URL + "/order";
-    public static final String ORDER_CHECKOUT_ENDPOINT = API_URL;
-    public static final String GET_ALL_ORDERS_BY_GUEST_ID_ENDPOINT = API_URL + "/guest";
-    public static final String GET_ORDER_DETAIL_BY_ID_ENDPOINT = API_URL;
-    public static final String MERGE_ALL_PURCHASED_ORDER_BEFORE_SIGNED_IN_ENDPOINT = API_URL + "cart";
+public class AuthApiHandler extends ApiHandler
+{
+    public static final String API_URL = BASE_URL + "/auth/user";
+    public static final String LOGIN_ENDPOINT = API_URL + "/login";
+    public static final String REGISTER_ENDPOINT = API_URL + "/register";
+    public static final String LOGOUT_ENDPOINT = API_URL + "/logout";
+    public static final String VERIFY_ACCESS_TOKEN_ENDPOINT = API_URL + "/verify";
+    public static final String REFRESH_ACCESS_TOKEN_ENDPOINT = API_URL + "/refresh";
 
-    public OrderApiHandler(Context context)
+    public AuthApiHandler(Context context)
     {
         super(context);
     }
 
-
-    public void checkout(
-        CheckoutDetailDto checkoutDetail,
+    public void login(
+        LoginRequestDto loginRequestDto,
         IOnCallApiSuccessCallback successCallback,
         IOnCallApiFailedCallback failedCallback) throws JSONException
     {
-        RequestBuilder requestBuilder = RequestBuilder.getInstance(ORDER_CHECKOUT_ENDPOINT);
+        RequestBuilder requestBuilder = new RequestBuilder(LOGIN_ENDPOINT);
 
         requestBuilder.withMethod(HttpMethod.POST);
-        requestBuilder.addJsonBody(checkoutDetail.toJson());
+        requestBuilder.addJsonBody(loginRequestDto.toJson());
         requestBuilder.addOnSuccessCallback(successCallback);
         requestBuilder.addOnFailureCallback(failedCallback);
 
@@ -42,14 +45,15 @@ public class OrderApiHandler extends ApiHandler {
         requestQueue.add(request);
     }
 
-    public void getAllOrdersByGuestId(
-        String guestId,
+    public void register(
+        RegisterDto registerDto,
         IOnCallApiSuccessCallback successCallback,
-        IOnCallApiFailedCallback failedCallback)
+        IOnCallApiFailedCallback failedCallback) throws JSONException
     {
-        RequestBuilder requestBuilder = RequestBuilder.getInstance(GET_ALL_ORDERS_BY_GUEST_ID_ENDPOINT + "/" + guestId);
+        RequestBuilder requestBuilder = new RequestBuilder(REGISTER_ENDPOINT);
 
-        requestBuilder.withMethod(HttpMethod.GET);
+        requestBuilder.withMethod(HttpMethod.POST);
+        requestBuilder.addJsonBody(registerDto.toJson());
         requestBuilder.addOnSuccessCallback(successCallback);
         requestBuilder.addOnFailureCallback(failedCallback);
 
@@ -58,33 +62,32 @@ public class OrderApiHandler extends ApiHandler {
         requestQueue.add(request);
     }
 
-    public void getOrderDetailById(
-        String orderId,
-        IOnCallApiSuccessCallback successCallback,
-        IOnCallApiFailedCallback failedCallback)
-    {
-        RequestBuilder requestBuilder = RequestBuilder.getInstance(GET_ORDER_DETAIL_BY_ID_ENDPOINT + "/" + orderId);
-
-        requestBuilder.withMethod(HttpMethod.GET);
-        requestBuilder.addOnSuccessCallback(successCallback);
-        requestBuilder.addOnFailureCallback(failedCallback);
-
-        JsonObjectRequest request = requestBuilder.buildJsonRequest();
-
-        requestQueue.add(request);
-    }
-
-    public void mergeAllPurchasedOrdersBeforeSignIn(
-        String cartId,
+    public void verifyAccessToken(
         String accessToken,
         IOnCallApiSuccessCallback successCallback,
         IOnCallApiFailedCallback failedCallback)
     {
-        final String apiUrl = MERGE_ALL_PURCHASED_ORDER_BEFORE_SIGNED_IN_ENDPOINT + "/" + cartId;
-        RequestBuilder requestBuilder = RequestBuilder.getInstance(apiUrl);
+        RequestBuilder requestBuilder = new RequestBuilder(VERIFY_ACCESS_TOKEN_ENDPOINT);
 
         requestBuilder.withMethod(HttpMethod.POST);
         requestBuilder.addJwtBearerToken(accessToken);
+        requestBuilder.addOnSuccessCallback(successCallback);
+        requestBuilder.addOnFailureCallback(failedCallback);
+
+        JsonObjectRequest request = requestBuilder.buildJsonRequest();
+
+        requestQueue.add(request);
+    }
+
+    public void refreshAgainAccessAndRefreshToken(
+        RefreshAccessTokenDto refreshAccessTokenDto,
+        IOnCallApiSuccessCallback successCallback,
+        IOnCallApiFailedCallback failedCallback) throws JSONException
+    {
+        RequestBuilder requestBuilder = new RequestBuilder(REFRESH_ACCESS_TOKEN_ENDPOINT);
+
+        requestBuilder.withMethod(HttpMethod.POST);
+        requestBuilder.addJsonBody(refreshAccessTokenDto.toJson());
         requestBuilder.addOnSuccessCallback(successCallback);
         requestBuilder.addOnFailureCallback(failedCallback);
 

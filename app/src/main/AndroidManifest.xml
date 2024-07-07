@@ -17,6 +17,9 @@
         android:theme="@style/Theme.PRM392_Assignment_Project"
         tools:targetApi="31">
         <activity
+            android:name=".views.screens.auths.AuthActivity"
+            android:exported="false" />
+        <activity
             android:name=".views.screens.orders.OrderDetailActivity"
             android:exported="false" />
         <activity

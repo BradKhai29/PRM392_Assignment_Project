@@ -11,7 +11,8 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RequestBuilder {
+public class RequestBuilder
+{
     protected String apiUrl;
     protected JSONObject requestBody;
     protected IOnCallApiSuccessCallback successCallback;
@@ -21,7 +22,8 @@ public class RequestBuilder {
 
     private static final JSONObject EMPTY_JSON_OBJECT;
 
-    static {
+    static
+    {
         try {
             EMPTY_JSON_OBJECT = new JSONObject("{}");
         } catch (JSONException e) {

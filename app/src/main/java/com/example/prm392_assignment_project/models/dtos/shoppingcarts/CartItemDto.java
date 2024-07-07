@@ -18,7 +18,7 @@ public class CartItemDto implements IApiInputDto {
         return quantity * unitPrice;
     }
 
-    public JSONObject toJsonObject() throws JSONException {
+    public JSONObject toJson() throws JSONException {
         JSONObject cartItemInJson = new JSONObject();
 
         cartItemInJson.put("cartId", cartId);

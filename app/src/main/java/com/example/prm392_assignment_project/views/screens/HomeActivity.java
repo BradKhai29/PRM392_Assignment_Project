@@ -223,7 +223,8 @@ public class HomeActivity extends AppCompatActivity {
     private void handleLoadAllProductsResponse(JSONObject response) {
         DeserializeResult<ApiResponse> result = ApiResponse.DeserializeFromJson(response);
 
-        if (!result.isSuccess) {
+        if (!result.isSuccess)
+        {
             Toast.makeText(this, "Có lỗi xảy ra", Toast.LENGTH_LONG).show();
             return;
         }

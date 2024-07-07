@@ -16,7 +16,7 @@ public class CheckoutDetailDto implements IApiInputDto {
     public final boolean cashOnDelivery = true;
 
     @Override
-    public JSONObject toJsonObject() throws JSONException {
+    public JSONObject toJson() throws JSONException {
         JSONObject checkoutDetailInJson = new JSONObject();
 
         checkoutDetailInJson.put("cartId", cartId);

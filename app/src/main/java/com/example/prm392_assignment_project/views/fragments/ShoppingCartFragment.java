@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.VolleyError;
@@ -20,6 +21,7 @@ import com.example.prm392_assignment_project.helpers.ShoppingCartStateManager;
 import com.example.prm392_assignment_project.models.commons.ApiResponse;
 import com.example.prm392_assignment_project.models.commons.DeserializeResult;
 import com.example.prm392_assignment_project.models.dtos.shoppingcarts.ShoppingCartDto;
+import com.example.prm392_assignment_project.views.screens.auths.AuthActivity;
 import com.example.prm392_assignment_project.views.screens.orders.OrderHistoryActivity;
 import com.example.prm392_assignment_project.views.screens.shopping_carts.ShoppingCartDetailActivity;
 import com.example.prm392_assignment_project.views.view_callbacks.IOnCallApiFailedCallback;
@@ -50,6 +52,7 @@ public class ShoppingCartFragment extends Fragment {
     // UI components.
     private Button btnShoppingCart;
     private Button btnViewOrderHistory;
+    private TextView tvShopName;
 
     public ShoppingCartFragment() {
         isLoadSuccess = false;
@@ -83,14 +86,23 @@ public class ShoppingCartFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_shopping_cart, container, false);
         btnShoppingCart = view.findViewById(R.id.btnShoppingCart);
         btnViewOrderHistory = view.findViewById(R.id.btnViewOrderHistory);
+        tvShopName = view.findViewById(R.id.tvShopName);
 
         // Setup on click listener for shopping cart btn.
         btnShoppingCart.setOnClickListener(this::viewShoppingCartDetail);
         btnViewOrderHistory.setOnClickListener(this::viewOrderHistory);
+        tvShopName.setOnClickListener(this::goToAuth);
 
         loadShoppingCartFromApi();
 
         return view;
+    }
+
+    private void goToAuth(View view)
+    {
+        Intent goToAuthIntent = new Intent(context, AuthActivity.class);
+
+        context.startActivity(goToAuthIntent);
     }
 
     private void viewShoppingCartDetail(View view)

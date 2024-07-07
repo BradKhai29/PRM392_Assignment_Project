@@ -14,7 +14,6 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.Volley;
 import com.example.prm392_assignment_project.R;
 import com.example.prm392_assignment_project.api_handlers.implementation.OrderApiHandler;
 import com.example.prm392_assignment_project.helpers.ShoppingCartStateManager;
@@ -65,7 +64,10 @@ public class CheckoutActivity extends AppCompatActivity {
     }
 
     private void confirmCheckout(View view) {
-        if (containsInvalidInputs()) return;
+        if (containsInvalidInputsWhenCheckout())
+        {
+            return;
+        }
 
         CheckoutDetailDto checkoutDetail = new CheckoutDetailDto();
         checkoutDetail.cartId = ShoppingCartStateManager.getCurrentShoppingCartId();
@@ -87,7 +89,7 @@ public class CheckoutActivity extends AppCompatActivity {
         }
     }
 
-    private boolean containsInvalidInputs() {
+    private boolean containsInvalidInputsWhenCheckout() {
         if (InputValidationHelper.isEmpty(inputLastName)) {
             popupToast("Vui lòng không để trống họ");
             return true;

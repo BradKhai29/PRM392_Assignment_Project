@@ -4,5 +4,5 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public interface IApiInputDto {
-    JSONObject toJsonObject() throws JSONException;
+    JSONObject toJson() throws JSONException;
 }
