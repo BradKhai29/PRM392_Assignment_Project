@@ -21,15 +21,16 @@ public class ProductApiHandler extends ApiHandler {
     }
 
     public void getAllProducts(
-        int totalProduct,
+        int totalProducts,
         IOnCallApiSuccessCallback successCallback,
         IOnCallApiFailedCallback failureCallback)
     {
-        if (totalProduct <= 0) {
-            totalProduct = 4;
+        if (totalProducts <= 0)
+        {
+            totalProducts = 4;
         }
 
-        RequestBuilder requestBuilder = RequestBuilder.getInstance(GET_ALL_PRODUCTS_ENDPOINT + "/" + totalProduct);
+        RequestBuilder requestBuilder = RequestBuilder.getInstance(GET_ALL_PRODUCTS_ENDPOINT + "/" + totalProducts);
 
         requestBuilder.withMethod(HttpMethod.GET);
         requestBuilder.addOnFailureCallback(failureCallback);

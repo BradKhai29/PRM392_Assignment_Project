@@ -6,7 +6,8 @@ import com.example.prm392_assignment_project.models.dtos.base.IApiInputDto;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class CartItemDto implements IApiInputDto {
+public class CartItemDto implements IApiInputDto
+{
     public String cartId;
     public String productId;
     public String productName;
@@ -28,7 +29,8 @@ public class CartItemDto implements IApiInputDto {
         return cartItemInJson;
     }
 
-    public static CartItemDto getInstanceToCallApi(String cartId, String productId, int quantity) {
+    public static CartItemDto getInstanceToCallApi(String cartId, String productId, int quantity)
+    {
         CartItemDto cartItemDto = new CartItemDto();
 
         cartItemDto.cartId = cartId;
@@ -57,8 +59,10 @@ public class CartItemDto implements IApiInputDto {
         return cartItemDto;
     }
 
-    public static DeserializeResult<CartItemDto> DeserializeFromJson(JSONObject jsonData) {
-        try{
+    public static DeserializeResult<CartItemDto> DeserializeFromJson(JSONObject jsonData)
+    {
+        try
+        {
             String productId = jsonData.getString("productId");
             String productName = jsonData.getString("productName");
             int unitPrice = jsonData.getInt("unitPrice");
@@ -75,7 +79,8 @@ public class CartItemDto implements IApiInputDto {
 
             return DeserializeResult.success(cartItemDto);
         }
-        catch (Exception exception) {
+        catch (Exception exception)
+        {
             return DeserializeResult.failed();
         }
     }

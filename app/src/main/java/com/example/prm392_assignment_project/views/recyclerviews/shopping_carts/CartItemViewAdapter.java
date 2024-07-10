@@ -17,7 +17,8 @@ import com.example.prm392_assignment_project.views.view_callbacks.support_models
 
 import java.util.List;
 
-public class CartItemViewAdapter extends RecyclerView.Adapter<CartItemViewHolder> {
+public class CartItemViewAdapter extends RecyclerView.Adapter<CartItemViewHolder>
+{
     private final Context context;
     private final List<CartItemDto> cartItems;
     private final IOnUpdateCartCallback onUpdateCartCallback;
@@ -40,7 +41,9 @@ public class CartItemViewAdapter extends RecyclerView.Adapter<CartItemViewHolder
         @NonNull ViewGroup parent,
         int viewType)
     {
-        View view = LayoutInflater.from(context).inflate(R.layout.cart_item, parent, false);
+        View view = LayoutInflater
+            .from(context)
+            .inflate(R.layout.cart_item, parent, false);
 
         return new CartItemViewHolder(view, context, onUpdateCartFromViewHolderCallback);
     }
@@ -52,7 +55,8 @@ public class CartItemViewAdapter extends RecyclerView.Adapter<CartItemViewHolder
     {
         CartItemDto cartItem = cartItems.get(position);
 
-        if (cartItem == null) {
+        if (cartItem == null)
+        {
             return;
         }
 
@@ -69,20 +73,24 @@ public class CartItemViewAdapter extends RecyclerView.Adapter<CartItemViewHolder
         return cartItems.size();
     }
 
-    private void handleOnUpdateCartFromViewHolder(UpdateCartActionDetail updateDetail) {
-        if (updateDetail.updateCartType == UpdateCartType.REMOVE_CART_ITEM) {
+    private void handleOnUpdateCartFromViewHolder(UpdateCartActionDetail updateDetail)
+    {
+        if (updateDetail.updateCartType == UpdateCartType.REMOVE_CART_ITEM)
+        {
             int removePosition = -1;
 
-            for (byte currentPosition = 0; currentPosition < cartItems.size(); currentPosition++) {
+            for (byte currentPosition = 0; currentPosition < cartItems.size(); currentPosition++)
+            {
                 CartItemDto cartItem = cartItems.get(currentPosition);
-
-                if (cartItem.productId.equals(updateDetail.updatedCartItemId)) {
+                if (cartItem.productId.equals(updateDetail.updatedCartItemId))
+                {
                     removePosition = currentPosition;
                     break;
                 }
             }
 
-            if (removePosition == -1) {
+            if (removePosition == -1)
+            {
                 Toast.makeText(context, "Invalid product id ???.", Toast.LENGTH_SHORT).show();
                 return;
             }

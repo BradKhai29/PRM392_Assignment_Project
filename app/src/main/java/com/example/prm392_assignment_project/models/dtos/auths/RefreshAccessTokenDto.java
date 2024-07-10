@@ -24,11 +24,11 @@ public class RefreshAccessTokenDto implements IApiInputDto
     @Override
     public JSONObject toJson() throws JSONException
     {
-        JSONObject jsonObject = new JSONObject();
+        JSONObject jsonBody = new JSONObject();
 
-        jsonObject.put("accessToken", accessToken);
-        jsonObject.put("refreshToken", refreshToken);
+        jsonBody.put("accessToken", accessToken);
+        jsonBody.put("refreshToken", refreshToken);
 
-        return jsonObject;
+        return jsonBody;
     }
 }

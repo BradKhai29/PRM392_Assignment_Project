@@ -1,18 +1,17 @@
 package com.example.prm392_assignment_project.views.fragments;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.fragment.app.Fragment;
+
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.Volley;
 import com.example.prm392_assignment_project.R;
 import com.example.prm392_assignment_project.api_handlers.implementation.AuthApiHandler;
 import com.example.prm392_assignment_project.helpers.UserAuthStateManager;
@@ -22,27 +21,37 @@ import com.example.prm392_assignment_project.models.commons.ApiResponse;
 import com.example.prm392_assignment_project.models.commons.DeserializeResult;
 import com.example.prm392_assignment_project.models.dtos.auths.LoginRequestDto;
 import com.example.prm392_assignment_project.models.dtos.auths.LoginResponseDto;
+import com.example.prm392_assignment_project.views.view_callbacks.IGoToLoginCallback;
+import com.example.prm392_assignment_project.views.view_callbacks.IGoToRegisterCallback;
 import com.example.prm392_assignment_project.views.view_callbacks.IOnLoginSuccessCallback;
 
 import org.json.JSONObject;
 
-public class LoginFragment extends Fragment {
+public class LoginFragment extends Fragment
+{
     private EditText inputEmail;
     private EditText inputPassword;
     private Button btnLogin;
+    private TextView btnGoToRegister;
+
+    // Dependencies and Callbacks
     private UserAuthStateManager userAuthStateManager;
     private final IOnLoginSuccessCallback loginSuccessCallback;
+    private final IGoToRegisterCallback goToRegisterCallback;
 
-    public LoginFragment(IOnLoginSuccessCallback loginSuccessCallback)
+    public LoginFragment(
+            IGoToRegisterCallback goToRegisterCallback,
+            IOnLoginSuccessCallback loginSuccessCallback)
     {
         this.loginSuccessCallback = loginSuccessCallback;
+        this.goToRegisterCallback = goToRegisterCallback;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        userAuthStateManager = UserAuthStateManager.getInstance(getContext());
+        userAuthStateManager = UserAuthStateManager.getInstance();
     }
 
     @Override
@@ -58,11 +67,18 @@ public class LoginFragment extends Fragment {
         inputEmail = view.findViewById(R.id.inputEmail);
         inputPassword = view.findViewById(R.id.inputPassword);
         btnLogin = view.findViewById(R.id.btnLogin);
+        btnGoToRegister = view.findViewById(R.id.btnGoToRegister);
 
         // Set up on-click listeners.
+        btnGoToRegister.setOnClickListener(this::goToRegister);
         btnLogin.setOnClickListener(this::login);
 
         return view;
+    }
+
+    private void goToRegister(View view)
+    {
+        goToRegisterCallback.resolve();
     }
 
     private void login(View view)
@@ -136,8 +152,7 @@ public class LoginFragment extends Fragment {
             LoginResponseDto loginResponseDto = deserializeResult.value;
             userAuthStateManager.setAccessToken(loginResponseDto.accessToken);
             userAuthStateManager.setRefreshToken(loginResponseDto.refreshToken);
-
-            loginSuccessCallback.resolve();
+            userAuthStateManager.verifyCurrentAccessToken(loginSuccessCallback::resolve, null);
         }
         catch (Exception exception)
         {
@@ -147,7 +162,7 @@ public class LoginFragment extends Fragment {
 
     private void handleLoginFailed(VolleyError error)
     {
-        popupToast("Login failed due to invalid credentials");
+        popupToast("Email hoặc mật khẩu không đúng");
     }
 
     private void popupToast(String message)

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:id="@+id/not_signed_in_group" android:checkableBehavior="single">
+        <item android:id="@+id/login"
+            android:title="Đăng nhập"
+            android:icon="@drawable/ic_user"/>
+    </group>
+
+    <group android:id="@+id/signed_in_group" android:checkableBehavior="single">
+        <item android:id="@+id/profile"
+            android:title="Xem thông tin"
+            android:icon="@drawable/ic_user"/>
+        <item android:id="@+id/logout"
+            android:title="Đăng xuất"
+            android:icon="@drawable/ic_logout"/>
+    </group>
+</menu>

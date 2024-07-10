@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.android.volley.VolleyError;
 import com.example.prm392_assignment_project.R;
 import com.example.prm392_assignment_project.api_handlers.implementation.OrderApiHandler;
+import com.example.prm392_assignment_project.helpers.DateTimeHelper;
 import com.example.prm392_assignment_project.models.commons.ApiResponse;
 import com.example.prm392_assignment_project.models.commons.DeserializeResult;
 import com.example.prm392_assignment_project.models.dtos.orders.OrderItemDto;
@@ -29,8 +30,11 @@ import java.util.List;
 
 public class OrderDetailActivity extends AppCompatActivity {
     private TextView tvOrderCode;
+    private TextView tvCreatedAt;
     private TextView tvOrderTotalPrice;
     private TextView tvOrderTotalItems;
+    private TextView tvDeliveryAddress;
+    private TextView tvOrderNote;
     private OrderItemViewAdapter orderItemViewAdapter;
     private final List<OrderItemDto> orderItems = new ArrayList<>();
 
@@ -53,8 +57,11 @@ public class OrderDetailActivity extends AppCompatActivity {
         }
 
         tvOrderCode = findViewById(R.id.tvOrderCode);
+        tvCreatedAt = findViewById(R.id.tvCreatedAt);
         tvOrderTotalPrice = findViewById(R.id.tvOrderTotalPrice);
         tvOrderTotalItems = findViewById(R.id.tvOrderTotalItems);
+        tvDeliveryAddress = findViewById(R.id.tvDeliveryAddress);
+        tvOrderNote = findViewById(R.id.tvNote);
 
         RecyclerView orderItemsRecyclerView = findViewById(R.id.orderItemsRecyclerView);
 
@@ -93,12 +100,16 @@ public class OrderDetailActivity extends AppCompatActivity {
         try
         {
             JSONObject orderDetailInJson = apiResponse.getBodyAsJsonObject();
-            int orderCode = orderDetailInJson.getInt("orderCode");
+            long orderCode = orderDetailInJson.getLong("orderCode");
             int orderTotalPrice = orderDetailInJson.getInt("totalPrice");
+            String createdAt = orderDetailInJson.getString("createdAt");
+            String deliveredAddress = orderDetailInJson.getString("deliveredAddress");
+            String orderNote = orderDetailInJson.getString("orderNote");
+
             int orderTotalItems = 0;
 
             JSONArray orderItemListInJson = orderDetailInJson.getJSONArray("orderItems");
-            int listLength = orderDetailInJson.length();
+            int listLength = orderItemListInJson.length();
 
             for (byte index = 0; index < listLength; index++)
             {
@@ -117,8 +128,11 @@ public class OrderDetailActivity extends AppCompatActivity {
 
             // Populate into text view.
             tvOrderCode.setText(String.valueOf(orderCode));
+            tvCreatedAt.setText(DateTimeHelper.normalize(createdAt));
             tvOrderTotalPrice.setText(String.valueOf(orderTotalPrice));
             tvOrderTotalItems.setText(String.valueOf(orderTotalItems));
+            tvDeliveryAddress.setText(deliveredAddress);
+            tvOrderNote.setText(orderNote);
         }
         catch (Exception exception)
         {

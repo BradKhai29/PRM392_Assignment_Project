@@ -3,6 +3,7 @@ package com.example.prm392_assignment_project.views.recyclerviews.shopping_carts
 import android.content.Context;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,7 +23,8 @@ import com.squareup.picasso.Picasso;
 
 import org.json.JSONObject;
 
-public class CartItemViewHolder extends RecyclerView.ViewHolder {
+public class CartItemViewHolder extends RecyclerView.ViewHolder
+{
     private final Context context;
     private final ShoppingCartApiHandler shoppingCartApiHandler;
     private final IOnUpdateCartCallback onUpdateCartCallback;
@@ -35,9 +37,9 @@ public class CartItemViewHolder extends RecyclerView.ViewHolder {
     private final TextView tvProductPrice;
     private final TextView tvCurrentQuantity;
     private final ImageView productImage;
-    private final Button btnIncreaseQuantity;
-    private final Button btnDecreaseQuantity;
-    private final Button btnRemoveItem;
+    private final ImageButton btnIncreaseQuantity;
+    private final ImageButton btnDecreaseQuantity;
+    private final ImageButton btnRemoveItem;
 
     public CartItemViewHolder(
         @NonNull View itemView,
@@ -85,16 +87,19 @@ public class CartItemViewHolder extends RecyclerView.ViewHolder {
         tvProductName.setText(productName);
     }
 
-    public void setCurrentQuantity(int quantity) {
+    public void setCurrentQuantity(int quantity)
+    {
         currentQuantity = quantity;
         tvCurrentQuantity.setText(String.valueOf(quantity));
     }
     ///endregion
 
-    private void decreaseQuantity(View view) {
+    private void decreaseQuantity(View view)
+    {
         final int MIN_QUANTITY = 1;
 
-        if (currentQuantity == MIN_QUANTITY) {
+        if (currentQuantity == MIN_QUANTITY)
+        {
             return;
         }
 
@@ -107,8 +112,9 @@ public class CartItemViewHolder extends RecyclerView.ViewHolder {
                 this::handleDecreaseQuantitySuccess,
                 this::handleDecreaseQuantityFailed);
         }
-        catch (Exception exception) {
-            Toast.makeText(context, "Has error when decrease quantity", Toast.LENGTH_SHORT).show();
+        catch (Exception exception)
+        {
+            Toast.makeText(context, "JSON error when decrease quantity", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -116,18 +122,20 @@ public class CartItemViewHolder extends RecyclerView.ViewHolder {
         currentQuantity--;
         tvCurrentQuantity.setText(String.valueOf(currentQuantity));
 
-        ShoppingCartStateManager.getShoppingCart().decreaseCartItem(productId, 1);
+        ShoppingCartStateManager.getShoppingCart().decreaseQuantity(productId, 1);
         ShoppingCartStateManager.addChanges();
 
         UpdateCartActionDetail updateDetail = UpdateCartActionDetail.getInstance(UpdateCartType.DECREASE_CART_ITEM_QUANTITY, productId);
         onUpdateCartCallback.resolve(updateDetail);
     }
 
-    private void handleDecreaseQuantityFailed(VolleyError error) {
+    private void handleDecreaseQuantityFailed(VolleyError error)
+    {
         Toast.makeText(context, "Decrease quantity api call failed", Toast.LENGTH_SHORT).show();
     }
 
-    private void increaseQuantity(View view) {
+    private void increaseQuantity(View view)
+    {
         try {
             String cartId = ShoppingCartStateManager.getCurrentShoppingCartId();
             CartItemDto cartItemToIncrease = CartItemDto.getInstanceToCallApi(cartId, productId, 1);
@@ -137,27 +145,31 @@ public class CartItemViewHolder extends RecyclerView.ViewHolder {
                 this::handleIncreaseQuantitySuccess,
                 this::handleIncreaseQuantityFailed);
         }
-        catch (Exception exception) {
-            Toast.makeText(context, "Has error when decrease quantity", Toast.LENGTH_SHORT).show();
+        catch (Exception exception)
+        {
+            Toast.makeText(context, "JSON error when increase quantity", Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void handleIncreaseQuantitySuccess(JSONObject response) {
+    private void handleIncreaseQuantitySuccess(JSONObject response)
+    {
         currentQuantity++;
         tvCurrentQuantity.setText(String.valueOf(currentQuantity));
 
-        ShoppingCartStateManager.getShoppingCart().increaseCartItem(productId, 1);
+        ShoppingCartStateManager.getShoppingCart().increaseQuantity(productId, 1);
         ShoppingCartStateManager.addChanges();
 
         UpdateCartActionDetail updateDetail = UpdateCartActionDetail.getInstance(UpdateCartType.INCREASE_CART_ITEM_QUANTITY, productId);
         onUpdateCartCallback.resolve(updateDetail);
     }
 
-    private void handleIncreaseQuantityFailed(VolleyError error) {
+    private void handleIncreaseQuantityFailed(VolleyError error)
+    {
         Toast.makeText(context, "Api error when increase quantity", Toast.LENGTH_SHORT).show();
     }
 
-    private void removeItem(View view) {
+    private void removeItem(View view)
+    {
         String cartId = ShoppingCartStateManager.getCurrentShoppingCartId();
 
         shoppingCartApiHandler.removeCartItem(
@@ -167,7 +179,8 @@ public class CartItemViewHolder extends RecyclerView.ViewHolder {
             this::handleRemoveCartItemFailed);
     }
 
-    private void handleRemoveCartItemSuccess(JSONObject response) {
+    private void handleRemoveCartItemSuccess(JSONObject response)
+    {
         ShoppingCartStateManager.getShoppingCart().removeCartItem(productId);
         ShoppingCartStateManager.addChanges();
 
@@ -175,7 +188,8 @@ public class CartItemViewHolder extends RecyclerView.ViewHolder {
         onUpdateCartCallback.resolve(updateDetail);
     }
 
-    private void handleRemoveCartItemFailed(VolleyError error) {
+    private void handleRemoveCartItemFailed(VolleyError error)
+    {
         Toast.makeText(context, "Remove cart item failed from api", Toast.LENGTH_SHORT).show();
     }
 }

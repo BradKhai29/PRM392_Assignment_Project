@@ -1,15 +1,25 @@
 package com.example.prm392_assignment_project.views.screens;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.Menu;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.widget.Toolbar;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -18,17 +28,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.android.volley.VolleyError;
 import com.example.prm392_assignment_project.R;
 import com.example.prm392_assignment_project.api_handlers.implementation.ProductApiHandler;
-import com.example.prm392_assignment_project.api_handlers.implementation.ShoppingCartApiHandler;
 import com.example.prm392_assignment_project.helpers.ShoppingCartStateManager;
+import com.example.prm392_assignment_project.helpers.UserAuthStateManager;
 import com.example.prm392_assignment_project.models.commons.ApiResponse;
 import com.example.prm392_assignment_project.models.commons.DeserializeResult;
 import com.example.prm392_assignment_project.models.dtos.products.GeneralProductInfoDto;
-import com.example.prm392_assignment_project.models.dtos.shoppingcarts.ShoppingCartDto;
-import com.example.prm392_assignment_project.views.fragments.ShoppingCartFragment;
+import com.example.prm392_assignment_project.views.fragments.BottomNavigationBar;
 import com.example.prm392_assignment_project.views.recyclerviews.products.ProductItemViewAdapter;
-import com.example.prm392_assignment_project.views.view_callbacks.IOnAddToCartCallback;
-import com.example.prm392_assignment_project.views.view_callbacks.IOnCallApiFailedCallback;
-import com.example.prm392_assignment_project.views.view_callbacks.IOnCallApiSuccessCallback;
+import com.example.prm392_assignment_project.views.screens.auths.AuthActivity;
+import com.google.android.material.navigation.NavigationView;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -37,44 +46,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HomeActivity extends AppCompatActivity {
-    // Load product callbacks.
-    private final IOnCallApiFailedCallback onLoadProductFailedCallback;
-    private final IOnCallApiSuccessCallback onLoadProductSuccessCallback;
-
-    // Init shopping cart callbacks.
-    private final IOnCallApiSuccessCallback onInitShoppingCartSuccessCallback;
-    private final IOnCallApiFailedCallback onInitShoppingCartFailedCallback;
-
-    // Load shopping cart callbacks.
-    private final IOnCallApiSuccessCallback onLoadShoppingCartSuccessCallback;
-    private final IOnCallApiFailedCallback onLoadShoppingCartFailedCallback;
-
-    // Add to cart callback.
-    private final IOnAddToCartCallback onAddToCartCallback;
-
-    private ShoppingCartFragment shoppingCartFragment;
+    private DrawerLayout drawerLayout;
+    private NavigationView leftSidebar;
+    private Toolbar toolbar;
+    private BottomNavigationBar bottomNavigationBar;
     private ProductItemViewAdapter productItemViewAdapter;
     private final List<GeneralProductInfoDto> products;
 
-    // Constants that used in app.
-    private final String SHOPPING_CART_FRAGMENT_TAG = "shopping_cart";
-
     public HomeActivity() {
-        // Load products.
-        onLoadProductSuccessCallback = this::handleLoadAllProductsResponse;
-        onLoadProductFailedCallback = this::handleLoadAllProductsFailure;
-
-        // Init shopping cart.
-        onInitShoppingCartSuccessCallback = this::handleInitShoppingCartResponse;
-        onInitShoppingCartFailedCallback = this::handleInitShoppingCartFailure;
-
-        // Load shopping cart.
-        onLoadShoppingCartSuccessCallback = this::handleLoadShoppingCartResponse;
-        onLoadShoppingCartFailedCallback = this::handleLoadShoppingCartFailure;
-
-        // Add to cart.
-        onAddToCartCallback = this::handleOnAddToCart;
-
         products = new ArrayList<>();
     }
 
@@ -89,37 +68,157 @@ public class HomeActivity extends AppCompatActivity {
             return insets;
         });
 
-        setUpShoppingCartManager();
+        setUpDrawerLayoutAndLeftSidebar();
+
+        // Set up the user auth state manager for later operation.
+        // The set up is conducted at home activity to make this active through app lifecycle.
+        UserAuthStateManager.setUp(this);
+        UserAuthStateManager.getInstance().verifyCurrentAccessToken(this::reloadLeftSidebar, this::reloadLeftSidebar);
+
         setUpRecyclerView();
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-        shoppingCartFragment = new ShoppingCartFragment();
-        shoppingCartFragment.setContext(this);
-
-        fragmentTransaction.add(R.id.fragment_container_view, shoppingCartFragment, SHOPPING_CART_FRAGMENT_TAG);
-        fragmentTransaction.commit();
+        setUpShoppingCartManager();
+        setUpBottomNavigationBarFragment();
 
         loadAllProductsFromApi();
     }
 
+    private void setUpDrawerLayoutAndLeftSidebar()
+    {
+        // Bind the components from the layout.
+        drawerLayout = findViewById(R.id.main);
+        leftSidebar = findViewById(R.id.left_sidebar);
+        toolbar = findViewById(R.id.toolbar);
+        toolbar.setTitle("Nut Shop");
+
+        // Set up on click listeners for action tool bar.
+        setSupportActionBar(toolbar);
+        leftSidebar.bringToFront();
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+            this,
+            drawerLayout,
+            toolbar,
+            R.string.open_left_sidebar_description,
+            R.string.close_left_sidebar_description);
+
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
+
+        showNotSignedInMenuGroup();
+        setOnMenuItemClickListenerForLeftSidebar();
+    }
+
+    private void reloadLeftSidebar()
+    {
+        View headerView = leftSidebar.getHeaderView(0);
+        if (headerView == null)
+        {
+            return;
+        }
+
+        UserAuthStateManager userAuthStateManager = UserAuthStateManager.getInstance();
+        if (!userAuthStateManager.isAccessTokenStillValid())
+        {
+            LinearLayout userFullNameSection = headerView.findViewById(R.id.user_full_name_section);
+            userFullNameSection.setVisibility(View.INVISIBLE);
+            ImageView userAvatar = headerView.findViewById(R.id.userAvatar);
+            userAvatar.setImageResource(R.drawable.ic_user_2);
+
+            showNotSignedInMenuGroup();
+            return;
+        }
+
+        // Get components to update UI.
+        ImageView userAvatar = headerView.findViewById(R.id.userAvatar);
+        TextView tvUserFullName = headerView.findViewById(R.id.userFullName);
+        LinearLayout userFullNameSection = headerView.findViewById(R.id.user_full_name_section);
+
+        // Populate info into components.
+        String avatarUrl = userAuthStateManager.getUserAvatarUrl();
+        String fullName = userAuthStateManager.getUserFullName();
+
+        Picasso.get().load(avatarUrl).into(userAvatar);
+        tvUserFullName.setText(fullName);
+        userFullNameSection.setVisibility(View.VISIBLE);
+        showSignedInMenuGroup();
+    }
+
+    private void showNotSignedInMenuGroup()
+    {
+        Menu leftSidebarMenu = leftSidebar.getMenu();
+
+        leftSidebarMenu.setGroupVisible(R.id.signed_in_group, false);
+        leftSidebarMenu.setGroupVisible(R.id.not_signed_in_group, true);
+    }
+
+    private void showSignedInMenuGroup()
+    {
+        Menu leftSidebarMenu = leftSidebar.getMenu();
+
+        leftSidebarMenu.setGroupVisible(R.id.signed_in_group, true);
+        leftSidebarMenu.setGroupVisible(R.id.not_signed_in_group, false);
+    }
+
+    private void setOnMenuItemClickListenerForLeftSidebar()
+    {
+        leftSidebar.setNavigationItemSelectedListener(menuItem ->
+        {
+            int itemId = menuItem.getItemId();
+
+            if (itemId == R.id.login)
+            {
+                Intent goToAuthIntent = new Intent(this, AuthActivity.class);
+                this.startActivity(goToAuthIntent);
+            }
+
+            if (itemId == R.id.logout)
+            {
+                UserAuthStateManager.getInstance().logoutUser(this::reloadLeftSidebar);
+                drawerLayout.close();
+            }
+
+            return false;
+        });
+    }
+
+    private void setUpBottomNavigationBarFragment()
+    {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        bottomNavigationBar = new BottomNavigationBar(this);
+
+        // Constants that used in app.
+        String BOTTOM_NAVIGATION_BAR_FRAGMENT_TAG = "bottom_nav_bar";
+        fragmentTransaction.add(R.id.fragment_container_view, bottomNavigationBar, BOTTOM_NAVIGATION_BAR_FRAGMENT_TAG);
+        fragmentTransaction.commit();
+    }
+
     @Override
-    protected void onResume() {
+    protected void onResume()
+    {
         super.onResume();
 
-        if (ShoppingCartStateManager.hasChangesInState()) {
-            shoppingCartFragment.reloadShoppingCart();
+        if (ShoppingCartStateManager.hasChangesInState())
+        {
+            bottomNavigationBar.loadShoppingCartBadge();
+            ShoppingCartStateManager.confirmChangeInState();
+        }
+
+        if (UserAuthStateManager.getInstance().isAccessTokenStillValid())
+        {
+            reloadLeftSidebar();
         }
     }
 
     ///region View components and dependency setup section.
-    private void setUpShoppingCartManager() {
+    private void setUpShoppingCartManager()
+    {
         // Set up the shopping cart helper for later operation.
         ShoppingCartStateManager.setupSharedPreferenceHelper(HomeActivity.this);
     }
 
-    private void setUpRecyclerView() {
+    private void setUpRecyclerView()
+    {
         // Private fields and components section.
         RecyclerView productItemRecyclerView = findViewById(R.id.productListRecyclerView);
 
@@ -129,116 +228,60 @@ public class HomeActivity extends AppCompatActivity {
 
         productItemRecyclerView.setLayoutManager(linearLayoutManager);
 
-        productItemViewAdapter = new ProductItemViewAdapter(HomeActivity.this, products, onAddToCartCallback);
+        productItemViewAdapter = new ProductItemViewAdapter(HomeActivity.this, products, this::handleOnAddToCart);
         productItemRecyclerView.setAdapter(productItemViewAdapter);
     }
     ///endregion
 
     ///region Private methods.
-    private void loadAllProductsFromApi() {
-        // Calling api using product controller.
-        ProductApiHandler productApiHandler = new ProductApiHandler(this);
-        productApiHandler.getAllProducts(4, onLoadProductSuccessCallback, onLoadProductFailedCallback);
-    }
+    private void loadAllProductsFromApi()
+    {
+        Handler handler = new Handler(Looper.getMainLooper());
+        Thread loadAllProductsThread = new Thread(() ->
+        {
+            handler.post(() ->
+            {
+                // Calling api using product controller.
+                ProductApiHandler productApiHandler = new ProductApiHandler(this);
+                productApiHandler.getAllProducts(
+                4,
+                    this::handleLoadAllProductsSuccess,
+                    this::handleLoadAllProductsFailed);
+            });
+        });
 
-    private void loadShoppingCartFromApi() {
-        // Process to init or load the shopping cart from the webapi.
-        if (ShoppingCartStateManager.isShoppingCartPreferenceExisted()) {
-            ShoppingCartStateManager.loadShoppingCartIdFromPreference();
-
-            String cartId = ShoppingCartStateManager.getCurrentShoppingCartId();
-
-            ShoppingCartApiHandler shoppingCartApiHandler = new ShoppingCartApiHandler(this);
-            shoppingCartApiHandler.loadShoppingCartById(cartId, onLoadShoppingCartSuccessCallback, onLoadShoppingCartFailedCallback);
-        }
-        else {
-            ShoppingCartApiHandler shoppingCartApiHandler = new ShoppingCartApiHandler(this);
-            shoppingCartApiHandler.initShoppingCart(onInitShoppingCartSuccessCallback, onInitShoppingCartFailedCallback);
-        }
+        loadAllProductsThread.start();
     }
     ///endregion
 
-    ///region Callback handler section.
-
-    // Init shopping cart handler section.
-    private void handleInitShoppingCartResponse(JSONObject response) {
-        try
-        {
-            JSONObject shoppingCart = response.getJSONObject("body");
-            String shoppingCartId = shoppingCart.getString("cartId");
-
-            ShoppingCartStateManager.setCurrentShoppingCartId(shoppingCartId);
-            ShoppingCartStateManager.setShoppingCartPreferenceValue(shoppingCartId);
-        }
-        catch (Exception exception)
-        {
-            Log.e("Shopping Cart Controller error", "Something wrong when init shopping cart");
-        }
-
-        // UI update here.
-        Toast.makeText(this, "Current shopping cart id : " + ShoppingCartStateManager.getCurrentShoppingCartId(), Toast.LENGTH_SHORT).show();
-    }
-
-    private void handleInitShoppingCartFailure(VolleyError error) {
-        Toast.makeText(this, "Có lỗi xảy ra với tính năng giỏ hàng", Toast.LENGTH_LONG).show();
-    }
-
-    // Load shopping cart handler section.
-    private void handleLoadShoppingCartResponse(JSONObject response) {
-        DeserializeResult<ApiResponse> result = ApiResponse.DeserializeFromJson(response);
-
-        if (!result.isSuccess) {
-            Toast.makeText(this, "Có lỗi xảy ra", Toast.LENGTH_LONG).show();
-            return;
-        }
-
-        ApiResponse apiResponse = result.value;
-
-        try
-        {
-            JSONObject responseBodyInJson = apiResponse.getBodyAsJsonObject();
-            DeserializeResult<ShoppingCartDto> shoppingCartDtoDeserializeResult
-                    = ShoppingCartDto.DeserializeFromJson(responseBodyInJson);
-
-            if (!shoppingCartDtoDeserializeResult.isSuccess)
-            {
-                Toast.makeText(this, "Có lỗi xảy ra khi lấy giỏ hàng từ API", Toast.LENGTH_LONG).show();
-                return;
-            }
-
-            Toast.makeText(this, "Lấy giỏ hàng từ API thành công", Toast.LENGTH_LONG).show();
-            ShoppingCartStateManager.setShoppingCart(shoppingCartDtoDeserializeResult.value);
-        }
-        catch (Exception exception)
-        {
-            Toast.makeText(this, "Có lỗi xảy ra khi lấy giỏ hàng từ API", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    private void handleLoadShoppingCartFailure(VolleyError error) {
-        Toast.makeText(this, "Có lỗi xảy ra khi lấy giỏ hàng từ API", Toast.LENGTH_LONG).show();
+    private void handleOnAddToCart()
+    {
+        bottomNavigationBar.loadShoppingCartBadge();
     }
 
     // Load all product handler section.
-    private void handleLoadAllProductsResponse(JSONObject response) {
+    private void handleLoadAllProductsSuccess(JSONObject response)
+    {
         DeserializeResult<ApiResponse> result = ApiResponse.DeserializeFromJson(response);
 
         if (!result.isSuccess)
         {
-            Toast.makeText(this, "Có lỗi xảy ra", Toast.LENGTH_LONG).show();
             return;
         }
 
         ApiResponse apiResponse = result.value;
 
-        try {
+        try
+        {
             JSONArray productListInJson = apiResponse.getBodyAsJsonArray();
             int productListLength = productListInJson.length();
 
-            for (byte index = 0; index < productListLength; index++) {
+            for (byte index = 0; index < productListLength; index++)
+            {
                 JSONObject productJson = productListInJson.getJSONObject(index);
 
-                DeserializeResult<GeneralProductInfoDto> deserializeResult = GeneralProductInfoDto.DeserializeFromJson(productJson);
+                DeserializeResult<GeneralProductInfoDto> deserializeResult
+                    = GeneralProductInfoDto.DeserializeFromJson(productJson);
 
                 if (deserializeResult.isSuccess)
                 {
@@ -248,20 +291,15 @@ public class HomeActivity extends AppCompatActivity {
                     productItemViewAdapter.notifyItemInserted(index);
                 }
             }
-
-            Toast.makeText(this, "Lấy danh sách sản phẩm thành công", Toast.LENGTH_LONG).show();
         }
-        catch (Exception exception) {
+        catch (Exception exception)
+        {
             Toast.makeText(this, "Có lỗi xảy ra khi lấy sản phẩm", Toast.LENGTH_LONG).show();
         }
     }
 
-    private void handleLoadAllProductsFailure(VolleyError error) {
-        Toast.makeText(this, "Có lỗi xảy ra khi lấy sản phẩm", Toast.LENGTH_LONG).show();
+    private void handleLoadAllProductsFailed(VolleyError error)
+    {
+        Toast.makeText(this, "Không gọi được API để lấy sản phẩm", Toast.LENGTH_LONG).show();
     }
-
-    private void handleOnAddToCart() {
-        shoppingCartFragment.reloadShoppingCart();
-    }
-    ///endregion
 }

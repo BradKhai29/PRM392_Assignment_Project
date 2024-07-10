@@ -13,75 +13,98 @@ import java.util.Map;
 
 public class RequestBuilder
 {
-    protected String apiUrl;
-    protected JSONObject requestBody;
-    protected IOnCallApiSuccessCallback successCallback;
-    protected IOnCallApiFailedCallback failureCallback;
-    protected HttpMethod httpMethod;
-    private final Map<String, String> requestHttpHeaders;
-
+    // Private static constants.
+    private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final JSONObject EMPTY_JSON_OBJECT;
+
+    // Private fields section.
+    private String _apiUrl;
+    private JSONObject requestBody;
+    private IOnCallApiSuccessCallback successCallback;
+    private IOnCallApiFailedCallback failureCallback;
+    private HttpMethod httpMethod;
+    private final Map<String, String> httpRequestHeaders;
 
     static
     {
-        try {
+        try
+        {
             EMPTY_JSON_OBJECT = new JSONObject("{}");
-        } catch (JSONException e) {
+        }
+        catch (JSONException e)
+        {
             throw new RuntimeException("FAIL TO INIT EMPTY JSON OBJECT");
         }
     }
 
-    public RequestBuilder(String apiUrl) {
-        this.apiUrl = apiUrl;
-        requestHttpHeaders = new HashMap<>();
+    public RequestBuilder(String apiUrl)
+    {
+        _apiUrl = apiUrl;
+        httpRequestHeaders = new HashMap<>();
     }
 
-    public void setApiUrl(String apiUrl) {
-        this.apiUrl = apiUrl;
+    public void setApiUrl(String apiUrl)
+    {
+        _apiUrl = apiUrl;
     }
 
     public void withMethod(HttpMethod method) {
         httpMethod = method;
     }
 
-    public RequestBuilder addJsonBody(JSONObject requestBody) {
+    public RequestBuilder addJsonBody(JSONObject requestBody)
+    {
         this.requestBody = requestBody;
-        HttpRequestHeader contentTypeJson = HttpRequestHeader.getInstance("Content-Type", "application/json; charset=utf-8");
-        addRequestHeader(contentTypeJson);
+        addRequestHeader(HttpRequestHeader.ContentTypeJson());
 
         return this;
     }
 
-    public RequestBuilder addRequestHeader(HttpRequestHeader requestHeader) {
-        if (requestHttpHeaders.containsKey(requestHeader.headerName)) {
+    public RequestBuilder addRequestHeader(HttpRequestHeader requestHeader)
+    {
+        if (httpRequestHeaders.containsKey(requestHeader.headerName))
+        {
             return this;
         }
 
-        requestHttpHeaders.put(requestHeader.headerName, requestHeader.headerValue);
+        // Add request header.
+        httpRequestHeaders.put(requestHeader.headerName, requestHeader.headerValue);
 
         return this;
     }
 
-    public RequestBuilder addJwtBearerToken(String jwtToken) {
-        final String authorizationHeader = "Authorization";
-
-        if (requestHttpHeaders.containsKey(authorizationHeader)) {
+    public RequestBuilder addJwtBearerToken(String jwtToken)
+    {
+        if (httpRequestHeaders.containsKey(AUTHORIZATION_HEADER))
+        {
             return this;
         }
 
         final String bearerToken = "Bearer " + jwtToken;
-        requestHttpHeaders.put(authorizationHeader, bearerToken);
+        httpRequestHeaders.put(AUTHORIZATION_HEADER, bearerToken);
 
         return this;
     }
 
-    public RequestBuilder addOnSuccessCallback(IOnCallApiSuccessCallback callback) {
+    /**
+     * Add the callback that will be invoked when the api response has success status code (2xx).
+     * @param callback The callback that will be invoked when response success.
+     * @return Current request builder instance.
+     */
+    public RequestBuilder addOnSuccessCallback(IOnCallApiSuccessCallback callback)
+    {
         successCallback = callback;
 
         return this;
     }
 
-    public RequestBuilder addOnFailureCallback(IOnCallApiFailedCallback callback) {
+    /**
+     * Add the callback that will be invoked when the api response has failed status code (4xx, 5xx).
+     * @param callback The callback that will be invoked when response failed.
+     * @return Current request builder instance.
+     */
+    public RequestBuilder addOnFailureCallback(IOnCallApiFailedCallback callback)
+    {
         failureCallback = callback;
 
         return this;
@@ -92,37 +115,44 @@ public class RequestBuilder
      * based on the provided implementation.
      * @return A new json object request to send to api.
      */
-    public JsonObjectRequest buildJsonRequest() {
-        if (apiUrl == null) {
+    public JsonObjectRequest buildJsonRequest()
+    {
+        if (_apiUrl == null)
+        {
             throw new IllegalArgumentException("Api Url cannot be null");
         }
 
-        if (httpMethod == null) {
+        if (httpMethod == null)
+        {
             throw new IllegalArgumentException("Http Method is not set");
         }
 
-        if (requestBody == null) {
+        if (requestBody == null)
+        {
             requestBody = EMPTY_JSON_OBJECT;
         }
 
-        if (successCallback == null) {
+        if (successCallback == null)
+        {
             throw new IllegalArgumentException("Success callback is not set");
         }
 
-        if (failureCallback == null) {
+        if (failureCallback == null)
+        {
             throw new IllegalArgumentException("Failure callback is not set");
         }
 
         JsonObjectRequest request = new JsonObjectRequest(
             httpMethod.getMethodCode(),
-            apiUrl,
+            _apiUrl,
             requestBody,
             response -> successCallback.resolve(response),
             error -> failureCallback.resolve(error))
         {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                return requestHttpHeaders;
+            public Map<String, String> getHeaders() throws AuthFailureError
+            {
+                return httpRequestHeaders;
             }
         };
 

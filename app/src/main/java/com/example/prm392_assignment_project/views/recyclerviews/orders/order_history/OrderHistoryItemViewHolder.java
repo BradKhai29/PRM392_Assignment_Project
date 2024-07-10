@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.prm392_assignment_project.R;
+import com.example.prm392_assignment_project.helpers.DateTimeHelper;
 import com.example.prm392_assignment_project.views.screens.orders.OrderDetailActivity;
 
 public class OrderHistoryItemViewHolder extends RecyclerView.ViewHolder {
@@ -26,6 +27,7 @@ public class OrderHistoryItemViewHolder extends RecyclerView.ViewHolder {
         super(itemView);
         this.context = context;
 
+        // Bind components from view.
         tvOrderCode = itemView.findViewById(R.id.tvOrderCode);
         tvOrderTotalPrice = itemView.findViewById(R.id.tvOrderTotalPrice);
         tvCheckoutDate = itemView.findViewById(R.id.tvCheckoutDate);
@@ -50,8 +52,7 @@ public class OrderHistoryItemViewHolder extends RecyclerView.ViewHolder {
 
     public void setOrderCode(String orderCode)
     {
-        String orderCodeText = "Đơn hàng: " + orderCode;
-        tvOrderCode.setText(orderCodeText);
+        tvOrderCode.setText(orderCode);
     }
 
     public void setOrderTotalPrice(int orderTotalPrice)
@@ -60,9 +61,8 @@ public class OrderHistoryItemViewHolder extends RecyclerView.ViewHolder {
         tvOrderTotalPrice.setText(orderTotalPriceText);
     }
 
-    public void setCheckoutDate(String checkoutDate)
+    public void setCreatedAt(String createdAt)
     {
-        String checkoutDateText = "Thanh toán lúc: " + checkoutDate;
-        tvCheckoutDate.setText(checkoutDateText);
+        tvCheckoutDate.setText(DateTimeHelper.normalize(createdAt));
     }
 }

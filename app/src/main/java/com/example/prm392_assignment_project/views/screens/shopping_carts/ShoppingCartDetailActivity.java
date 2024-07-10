@@ -44,11 +44,18 @@ public class ShoppingCartDetailActivity extends AppCompatActivity {
             return insets;
         });
 
+        // Bind components from layout.
         tvTotalItems = findViewById(R.id.tvTotalItems);
         tvSubTotal = findViewById(R.id.tvSubtotal);
         btnGoToCheckout = findViewById(R.id.btnCheckout);
         btnGoToCheckout.setOnClickListener(this::goToCheckoutActivity);
 
+        setUpRecyclerView();
+        loadShoppingCartInformation();
+    }
+
+    private void setUpRecyclerView()
+    {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
 
@@ -58,17 +65,12 @@ public class ShoppingCartDetailActivity extends AppCompatActivity {
         List<CartItemDto> cartItems = ShoppingCartStateManager.getShoppingCart().getCartItems();
 
         cartItemViewAdapter = new CartItemViewAdapter(this, cartItems, this::handleOnUpdateShoppingCart);
-
         cartItemListRecyclerView.setAdapter(cartItemViewAdapter);
-
-        loadShoppingCartInformation();
     }
-
-
 
     private void loadShoppingCartInformation()
     {
-        String totalItemsText = "Giỏ hàng (" + ShoppingCartStateManager.getTotalItemsInCart() + ")";
+        String totalItemsText = String.valueOf(ShoppingCartStateManager.getTotalItemsInCart());
         tvTotalItems.setText(totalItemsText);
 
         String subTotalText = ShoppingCartStateManager.getTotalPrice() + " VND";
@@ -82,8 +84,14 @@ public class ShoppingCartDetailActivity extends AppCompatActivity {
 
     private void goToCheckoutActivity(View view)
     {
-        Intent goToCheckoutActivityIntent = new Intent(ShoppingCartDetailActivity.this, CheckoutActivity.class);
+        boolean isCartEmpty = ShoppingCartStateManager.getShoppingCart().getTotalItems() == 0;
+        if (isCartEmpty)
+        {
+            Toast.makeText(this, "Giỏ hàng đang trống", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
+        Intent goToCheckoutActivityIntent = new Intent(ShoppingCartDetailActivity.this, CheckoutActivity.class);
         startActivity(goToCheckoutActivityIntent);
     }
 }

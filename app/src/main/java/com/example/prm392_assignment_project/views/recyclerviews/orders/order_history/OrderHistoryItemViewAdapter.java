@@ -56,7 +56,7 @@ public class OrderHistoryItemViewAdapter
         holder.setOrderId(orderHistoryItem.orderId);
         holder.setOrderCode(orderHistoryItem.orderCode);
         holder.setOrderTotalPrice(orderHistoryItem.totalPrice);
-        holder.setCheckoutDate(orderHistoryItem.createdAt);
+        holder.setCreatedAt(orderHistoryItem.createdAt);
     }
 
     @Override

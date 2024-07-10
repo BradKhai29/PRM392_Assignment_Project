@@ -5,10 +5,11 @@ import android.content.Context;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 
-public abstract class ApiHandler {
+public abstract class ApiHandler
+{
     public static final String BASE_URL = "https://ecom.odour.site/api";
 
-    // Dependencies.
+    // Api handler dependencies.
     protected final RequestQueue requestQueue;
 
     public ApiHandler(Context context)

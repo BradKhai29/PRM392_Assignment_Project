@@ -7,6 +7,7 @@ import com.example.prm392_assignment_project.api_handlers.base.ApiHandler;
 import com.example.prm392_assignment_project.commons.requestbuilders.HttpMethod;
 import com.example.prm392_assignment_project.commons.requestbuilders.RequestBuilder;
 import com.example.prm392_assignment_project.models.dtos.auths.LoginRequestDto;
+import com.example.prm392_assignment_project.models.dtos.auths.LogoutDto;
 import com.example.prm392_assignment_project.models.dtos.auths.RefreshAccessTokenDto;
 import com.example.prm392_assignment_project.models.dtos.auths.RegisterDto;
 import com.example.prm392_assignment_project.views.view_callbacks.IOnCallApiFailedCallback;
@@ -88,6 +89,27 @@ public class AuthApiHandler extends ApiHandler
 
         requestBuilder.withMethod(HttpMethod.POST);
         requestBuilder.addJsonBody(refreshAccessTokenDto.toJson());
+        requestBuilder.addOnSuccessCallback(successCallback);
+        requestBuilder.addOnFailureCallback(failedCallback);
+
+        JsonObjectRequest request = requestBuilder.buildJsonRequest();
+
+        requestQueue.add(request);
+    }
+
+    public void logout(
+        String accessToken,
+        String refreshToken,
+        IOnCallApiSuccessCallback successCallback,
+        IOnCallApiFailedCallback failedCallback) throws JSONException
+    {
+        RequestBuilder requestBuilder = new RequestBuilder(LOGOUT_ENDPOINT);
+
+        requestBuilder.withMethod(HttpMethod.POST);
+
+        requestBuilder.addJwtBearerToken(accessToken);
+        requestBuilder.addJsonBody(LogoutDto.getInstance(refreshToken).toJson());
+
         requestBuilder.addOnSuccessCallback(successCallback);
         requestBuilder.addOnFailureCallback(failedCallback);
 

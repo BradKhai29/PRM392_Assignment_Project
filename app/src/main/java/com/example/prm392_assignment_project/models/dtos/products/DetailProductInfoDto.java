@@ -1,6 +1,7 @@
 package com.example.prm392_assignment_project.models.dtos.products;
 
 import com.example.prm392_assignment_project.models.commons.DeserializeResult;
+import com.example.prm392_assignment_project.models.dtos.categories.CategoryDetailDto;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -8,7 +9,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DetailProductInfoDto {
+public class DetailProductInfoDto
+{
     private String id;
     private String name;
     private String category;
@@ -16,7 +18,14 @@ public class DetailProductInfoDto {
     private int unitPrice;
     private List<String> imageUrls;
 
-    public DetailProductInfoDto(String productId, String name, String category, String description, int unitPrice, List<String> imageUrls) {
+    public DetailProductInfoDto(
+        String productId,
+        String name,
+        String category,
+        String description,
+        int unitPrice,
+        List<String> imageUrls)
+    {
         this.id = productId;
         this.name = name;
         this.category = category;
@@ -71,18 +80,22 @@ public class DetailProductInfoDto {
 
     public static DeserializeResult<DetailProductInfoDto> DeserializeFromJson(JSONObject jsonData)
     {
-        try {
+        try
+        {
             String productId = jsonData.getString("id");
             String productName = jsonData.getString("name");
-            String category = jsonData.getJSONObject("category").toString();
+            JSONObject categoryInJson = jsonData.getJSONObject("category");
             String description = jsonData.getString("description");
             int unitPrice = jsonData.getInt("unitPrice");
+            String category = CategoryDetailDto.DeserializeFromJson(categoryInJson).value.name;
 
+            // Deserialize an array of imageUrl from json.
             JSONArray imageArray = jsonData.getJSONArray("imageUrls");
             List<String> imageUrls = new ArrayList<>(imageArray.length());
             int imageArrayLength = imageArray.length();
 
-            for (byte i = 0; i < imageArrayLength; i++) {
+            for (byte i = 0; i < imageArrayLength; i++)
+            {
                 String imageUrl = imageArray.getString(i);
                 imageUrls.add(imageUrl);
             }
@@ -97,7 +110,8 @@ public class DetailProductInfoDto {
 
             return DeserializeResult.success(productDetail);
         }
-        catch (Exception exception) {
+        catch (Exception exception)
+        {
             return DeserializeResult.failed();
         }
     }

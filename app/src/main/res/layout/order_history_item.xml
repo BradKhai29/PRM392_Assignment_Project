@@ -1,35 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="12dp"
-    android:background="@color/white">
-
+    android:layout_margin="12dp"
+    app:cardCornerRadius="4dp"
+    app:cardElevation="4dp">
     <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <TextView
-            android:id="@+id/tvOrderCode"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Đơn hàng: 2024062412230024"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:layout_gravity="start|center_vertical"/>
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:background="@color/primary">
 
-        <LinearLayout
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mã đơn:"
+                android:textSize="@dimen/font_size_small"
+                android:textColor="@color/light_100"
+                android:layout_gravity="start|center_vertical"/>
+            <TextView
+                android:id="@+id/tvOrderCode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2024062412230024"
+                android:textSize="@dimen/font_size_small"
+                style="@style/text_light_fw_bold"
+                android:layout_gravity="end|center_vertical"/>
+        </FrameLayout>
+
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="4dp">
+            android:layout_marginTop="16dp">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Tổng thanh toán:"
-                android:textSize="16sp"
+                android:textSize="@dimen/font_size_small"
+                android:textColor="@color/light_100"
                 android:layout_marginRight="4dp"
                 android:layout_gravity="start|center_vertical"/>
             <TextView
@@ -37,23 +54,29 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="120.000 VND"
-                android:textStyle="bold"
-                android:textSize="16sp"
-                android:layout_gravity="start|center_vertical"/>
-        </LinearLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_marginTop="12dp">
-        <TextView
-            android:id="@+id/tvCheckoutDate"
+                android:textSize="@dimen/font_size_small"
+                style="@style/text_light_fw_bold"
+                android:layout_gravity="end|center_vertical"/>
+        </FrameLayout>
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Thanh toán lúc: 12h30 - 02/10/2023"
-            android:textSize="16sp"/>
+            android:layout_marginTop="6dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Thời gian:"
+                android:textSize="@dimen/font_size_small"
+                android:textColor="@color/light_100"
+                android:layout_gravity="start|center_vertical"/>
+            <TextView
+                android:id="@+id/tvCheckoutDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="12h30 - 02/10/2023"
+                style="@style/text_light_fw_bold"
+                android:textSize="@dimen/font_size_small"
+                android:layout_gravity="end|center_vertical"/>
+        </FrameLayout>
     </LinearLayout>
-
-</LinearLayout>
+</androidx.cardview.widget.CardView>

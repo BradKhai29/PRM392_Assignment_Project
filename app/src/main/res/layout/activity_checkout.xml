@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,182 +7,178 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".views.screens.checkouts.CheckoutActivity"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/light_100">
+
+    <LinearLayout
+        android:id="@+id/header_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="12dp"
+        android:layout_alignParentTop="true">
+
+        <TextView
+            android:text="Thông tin thanh toán"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/font_size_medium"
+            android:padding="12dp"
+            style="@style/text_dark_fw_bold"
+            android:layout_gravity="start|center_vertical"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="1dp"
+            android:background="@color/black"/>
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/checkout_information_input_section"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:layout_below="@+id/header_section"
         android:padding="12dp">
 
-        <LinearLayout
-            android:id="@+id/customer_name_section"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Họ"
-                    android:textStyle="bold"
-                    android:textSize="16sp"/>
-                <EditText
-                    android:id="@+id/inputLastName"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Điền họ"/>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Tên"
-                    android:textStyle="bold"
-                    android:textSize="16sp"/>
-                <EditText
-                    android:id="@+id/inputFirstName"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Điền tên của bạn"/>
-            </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_marginTop="12dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-            <TextView
+            style="@style/app_input"
+            android:layout_marginBottom="12dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputLastName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Số điện thoại"
-                android:textStyle="bold"
-                android:textSize="16sp"/>
-            <EditText
+                android:hint="Nhập họ của bạn"
+                android:textColor="@color/black"
+                android:textColorHint="@color/black"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/app_input"
+            android:layout_marginBottom="12dp">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputFirstName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Nhập tên của bạn"
+                android:textColor="@color/black"
+                android:textColorHint="@color/black"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/app_input"
+            android:layout_marginBottom="12dp">
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputPhonoe"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Số điện thoại của bạn"
+                android:hint="Số điện thoại liên hệ"
+                android:textColor="@color/black"
+                android:textColorHint="@color/black"
                 android:inputType="phone"/>
-        </LinearLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <LinearLayout
-            android:layout_marginTop="12dp"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Email"
-                android:textStyle="bold"
-                android:textSize="16sp"
-                android:inputType="textEmailAddress"/>
-            <EditText
+            style="@style/app_input"
+            android:layout_marginBottom="12dp">
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Email của bạn"/>
-        </LinearLayout>
+                android:hint="Nhập email liên hệ"
+                android:textColor="@color/black"
+                android:textColorHint="@color/black"
+                android:inputType="textEmailAddress"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <LinearLayout
-            android:layout_marginTop="12dp"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Địa chỉ giao hàng"
-                android:textStyle="bold"
-                android:textSize="16sp"/>
-            <EditText
+            style="@style/app_input"
+            android:layout_marginBottom="12dp">
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputDeliveryAddress"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Nhập địa chỉ đơn hàng được giao"/>
-        </LinearLayout>
+                android:hint="Địa chỉ giao hàng"
+                android:textColor="@color/black"
+                android:textColorHint="@color/black"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <LinearLayout
-            android:layout_marginTop="12dp"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Ghi chú"
-                android:textStyle="bold"
-                android:textSize="16sp"/>
-            <EditText
+            style="@style/app_input"
+            android:layout_marginBottom="12dp">
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/inputNote"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Ghi chú thêm cho đơn hàng"/>
-        </LinearLayout>
+                android:hint="Ghi chú cho đơn hàng"
+                android:textColor="@color/black"
+                android:textColorHint="@color/black"/>
+        </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="12dp"
-        android:layout_gravity="bottom">
-
-        <FrameLayout
+        android:layout_alignParentBottom="true"
+        android:paddingHorizontal="12dp">
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            android:padding="8dp"
-            android:background="@color/grey">
+            android:orientation="vertical"
+            android:padding="1dp"
+            android:background="@color/black"/>
 
+        <RelativeLayout
+            android:id="@+id/checkout_information_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingVertical="12dp">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tổng tiền"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@color/white"
-                android:layout_gravity="start|center_vertical"/>
-
+                android:text="Tổng thanh toán"
+                android:textSize="@dimen/font_size_small"
+                style="@style/text_dark_fw_normal"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"/>
             <TextView
                 android:id="@+id/tvCheckoutTotalPrice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="120.000 VND"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@color/white"
-                android:layout_gravity="end|center_vertical"/>
+                android:textSize="@dimen/font_size_small"
+                style="@style/text_dark_fw_bold"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"/>
+        </RelativeLayout>
 
-        </FrameLayout>
-
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnConfirmCheckout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/black"
+            android:textAlignment="center"
+            android:textSize="@dimen/font_size_small"
             android:textColor="@color/white"
             android:textStyle="bold"
-            android:textSize="16sp"
-            android:text="Xác nhận thanh toán"/>
-
+            android:backgroundTint="@color/primary"
+            app:cornerRadius="@dimen/border_radius_small"
+            android:text="Xác nhận thanh toán"
+            android:layout_marginBottom="12dp"/>
     </LinearLayout>
 
-</FrameLayout>
+</RelativeLayout>

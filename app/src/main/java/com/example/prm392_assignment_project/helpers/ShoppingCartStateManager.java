@@ -12,21 +12,26 @@ public class ShoppingCartStateManager {
     private static ShoppingCartDto shoppingCart;
     private static boolean hasChangesInState = false;
 
-    public static void setupSharedPreferenceHelper(Context context) {
-        if (sharedPreferenceHelper != null) {
+    public static void setupSharedPreferenceHelper(Context context)
+    {
+        if (sharedPreferenceHelper != null)
+        {
             return;
         }
 
         sharedPreferenceHelper = new SharedPreferenceHelper(context);
     }
 
-    public static void loadShoppingCartIdFromPreference() {
-        if (sharedPreferenceHelper.contains(SHOPPING_CART_ID_PREFERENCE_KEY)) {
+    public static void loadShoppingCartIdFromPreference()
+    {
+        if (sharedPreferenceHelper.contains(SHOPPING_CART_ID_PREFERENCE_KEY))
+        {
             currentShoppingCartId = sharedPreferenceHelper.getString(SHOPPING_CART_ID_PREFERENCE_KEY);
         }
     }
 
-    public static boolean isShoppingCartPreferenceExisted() {
+    public static boolean isShoppingCartPreferenceExisted()
+    {
         return sharedPreferenceHelper.contains(SHOPPING_CART_ID_PREFERENCE_KEY);
     }
 
@@ -35,8 +40,10 @@ public class ShoppingCartStateManager {
      * for next time retrieval.
      * @param cartId CartId that used to get the shopping cart detail from API.
      */
-    public static void setShoppingCartPreferenceValue(String cartId) throws Exception {
-        if (sharedPreferenceHelper == null) {
+    public static void setShoppingCartPreferenceValue(String cartId) throws Exception
+    {
+        if (sharedPreferenceHelper == null)
+        {
             throw new Exception("The shopping cart helper wasn't setup yet.");
         }
 
@@ -46,7 +53,8 @@ public class ShoppingCartStateManager {
         currentShoppingCartId = cartId;
     }
 
-    public static void clearShoppingCart() {
+    public static void clearShoppingCart()
+    {
         shoppingCart.clear();
     }
 
@@ -54,7 +62,8 @@ public class ShoppingCartStateManager {
         return currentShoppingCartId;
     }
 
-    public static void loadShoppingCartSuccess() {
+    public static void loadShoppingCartSuccess()
+    {
         loadShoppingCartSuccessFromApi = true;
     }
 
@@ -62,7 +71,8 @@ public class ShoppingCartStateManager {
         return loadShoppingCartSuccessFromApi;
     }
 
-    public static void setShoppingCart(ShoppingCartDto shoppingCartDto) {
+    public static void setShoppingCart(ShoppingCartDto shoppingCartDto)
+    {
         shoppingCart = shoppingCartDto;
     }
 

@@ -2,6 +2,7 @@ package com.example.prm392_assignment_project.views.fragments;
 
 import android.os.Bundle;
 
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.VolleyError;
@@ -18,6 +20,7 @@ import com.example.prm392_assignment_project.api_handlers.implementation.AuthApi
 import com.example.prm392_assignment_project.helpers.input_validations.EmailValidationHelper;
 import com.example.prm392_assignment_project.helpers.input_validations.InputValidationHelper;
 import com.example.prm392_assignment_project.models.dtos.auths.RegisterDto;
+import com.example.prm392_assignment_project.views.view_callbacks.IGoToLoginCallback;
 
 import org.json.JSONObject;
 
@@ -26,18 +29,20 @@ public class RegisterFragment extends Fragment {
     private EditText inputLastName;
     private EditText inputEmail;
     private EditText inputPassword;
-    private Button btnRegister;
     private LinearLayout registerInputSection;
-    private LinearLayout registerSuccessPopup;
+    private CardView registerSuccessPopup;
 
-    public RegisterFragment() {
-        // Required empty public constructor
+    // Callbacks.
+    private final IGoToLoginCallback goToLoginCallback;
+
+    public RegisterFragment(IGoToLoginCallback goToLoginCallback)
+    {
+        this.goToLoginCallback = goToLoginCallback;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
@@ -56,12 +61,21 @@ public class RegisterFragment extends Fragment {
         inputLastName = view.findViewById(R.id.inputLastName);
         inputEmail = view.findViewById(R.id.inputEmail);
         inputPassword = view.findViewById(R.id.inputPassword);
-        btnRegister = view.findViewById(R.id.btnRegister);
+        Button btnRegister = view.findViewById(R.id.btnRegister);
+        TextView btnGoToLogin = view.findViewById(R.id.tvGoToLogin);
+        Button btnGoToLogin2 = view.findViewById(R.id.btnGoToLogin);
 
         // Set up on-click listener.
         btnRegister.setOnClickListener(this::register);
+        btnGoToLogin.setOnClickListener(this::goToLogin);
+        btnGoToLogin2.setOnClickListener(this::goToLogin);
 
         return view;
+    }
+
+    private void goToLogin(View view)
+    {
+        goToLoginCallback.resolve();
     }
 
     private void register(View view)

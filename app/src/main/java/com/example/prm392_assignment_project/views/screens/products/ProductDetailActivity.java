@@ -1,8 +1,10 @@
 package com.example.prm392_assignment_project.views.screens.products;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -12,8 +14,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.android.volley.VolleyError;
 import com.example.prm392_assignment_project.R;
@@ -25,9 +25,7 @@ import com.example.prm392_assignment_project.models.commons.DeserializeResult;
 import com.example.prm392_assignment_project.models.dtos.products.DetailProductInfoDto;
 import com.example.prm392_assignment_project.models.dtos.shoppingcarts.CartItemDto;
 import com.example.prm392_assignment_project.models.dtos.shoppingcarts.ShoppingCartDto;
-import com.example.prm392_assignment_project.views.fragments.ShoppingCartFragment;
-import com.example.prm392_assignment_project.views.view_callbacks.IOnCallApiFailedCallback;
-import com.example.prm392_assignment_project.views.view_callbacks.IOnCallApiSuccessCallback;
+import com.example.prm392_assignment_project.views.screens.shopping_carts.ShoppingCartDetailActivity;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -35,43 +33,38 @@ import org.json.JSONObject;
 
 public class ProductDetailActivity extends AppCompatActivity {
     // Private fields.
-
     private String productId;
     private String imageUrl;
     private String productName;
     private int unitPrice;
     private int addToCartQuantity;
 
-    // View callbacks.
-    private final IOnCallApiSuccessCallback onGetProductDetailSuccessCallback;
-    private final IOnCallApiFailedCallback onGetProductDetailFailureCallback;
-    private final IOnCallApiSuccessCallback onAddToCartSuccessCallback;
-    private final IOnCallApiFailedCallback onAddToCartFailureCallback;
     private ShoppingCartApiHandler shoppingCartApiHandler;
 
-    // UI components.
-    private ShoppingCartFragment shoppingCartFragment;
-
-    // Constants that used in app.
-    private final String SHOPPING_CART_FRAGMENT_TAG = "shopping_cart";
-
-    public ProductDetailActivity() {
+    public ProductDetailActivity()
+    {
         addToCartQuantity = 1;
-        onGetProductDetailSuccessCallback = this::handleGetProductDetailResponse;
-        onGetProductDetailFailureCallback = this::handleGetProductDetailFailure;
-        onAddToCartSuccessCallback = this::handleAddToCartSuccess;
-        onAddToCartFailureCallback = this::handleAddToCartFailure;
     }
 
     // UI Components
     private ImageView productImage;
     private TextView tvProductName;
+    private Button productCategory;
     private TextView tvProductPrice;
     private TextView tvProductDescription;
+
+    // Add to cart section.
+    /**
+     * This field will control the add-to-cart action from user.
+     */
+    private boolean allowAddToCart = false;
+    private TextView tvTotalItems;
     private TextView tvAddToCartQuantity;
-    private Button btnIncreaseQuantity;
-    private Button btnDecreaseQuantity;
+    private ImageButton btnIncreaseQuantity;
+    private ImageButton btnDecreaseQuantity;
     private Button btnAddToCart;
+    private ImageButton btnBackHome;
+    private ImageButton btnViewCart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,50 +79,78 @@ public class ProductDetailActivity extends AppCompatActivity {
 
         productId = getIntent().getStringExtra("productId");
 
-        if (String.valueOf(productId).isEmpty()) {
+        if (String.valueOf(productId).isEmpty())
+        {
             finish();
+            return;
         }
 
         // Bind the components from layout.
         productImage = findViewById(R.id.product_image);
         tvProductName = findViewById(R.id.product_name);
+        productCategory = findViewById(R.id.product_category);
         tvProductPrice = findViewById(R.id.product_price);
         tvProductDescription = findViewById(R.id.product_description);
+        btnBackHome = findViewById(R.id.btnBackHome);
 
         // Add to cart components section.
+        tvTotalItems = findViewById(R.id.tvTotalItems);
         tvAddToCartQuantity = findViewById(R.id.addToCartQuantity);
         btnDecreaseQuantity = findViewById(R.id.btnMinus);
         btnIncreaseQuantity = findViewById(R.id.btnPlus);
         btnAddToCart = findViewById(R.id.btn_add_to_cart);
+        btnViewCart = findViewById(R.id.btnViewCart);
 
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-        shoppingCartFragment = new ShoppingCartFragment();
-        shoppingCartFragment.setContext(this);
-
-        fragmentTransaction.add(R.id.fragment_container_view, shoppingCartFragment, SHOPPING_CART_FRAGMENT_TAG);
-        fragmentTransaction.commit();
-
-        setUpOnClickListener();
+        loadCartTotalItems();
         shoppingCartApiHandler = new ShoppingCartApiHandler(this);
 
-        ProductApiHandler productApiHandler = new ProductApiHandler(this);
-        productApiHandler.getProductDetailById(productId, onGetProductDetailSuccessCallback, onGetProductDetailFailureCallback);
+        setUpOnClickListener();
+        getProductDetail();
     }
 
-    private void setUpOnClickListener() {
+    private void loadCartTotalItems()
+    {
+        tvTotalItems.setText(String.valueOf(ShoppingCartStateManager.getTotalItemsInCart()));
+    }
+
+    private void getProductDetail()
+    {
+        ProductApiHandler productApiHandler = new ProductApiHandler(this);
+        productApiHandler.getProductDetailById(
+            productId,
+            this::handleGetProductDetailSuccess,
+            this::handleGetProductDetailFailed);
+    }
+
+    private void setUpOnClickListener()
+    {
         btnIncreaseQuantity.setOnClickListener(this::increaseAddToCartQuantity);
         btnDecreaseQuantity.setOnClickListener(this::decreaseAddToCartQuantity);
-        btnAddToCart.setOnClickListener(this::handleAddToCartListener);
+        btnAddToCart.setOnClickListener(this::handleAddToCart);
+        btnBackHome.setOnClickListener(this::backToHome);
+        btnViewCart.setOnClickListener(this::viewCartDetail);
     }
 
-    private void increaseAddToCartQuantity(View view) {
+    private void backToHome(View view)
+    {
+        finish();
+    }
+
+    private void viewCartDetail(View view)
+    {
+        Intent viewCartDetailIntent = new Intent(this, ShoppingCartDetailActivity.class);
+
+        this.startActivity(viewCartDetailIntent);
+    }
+
+    private void increaseAddToCartQuantity(View view)
+    {
         addToCartQuantity++;
         tvAddToCartQuantity.setText(String.valueOf(addToCartQuantity));
     }
 
-    private void decreaseAddToCartQuantity(View view) {
+    private void decreaseAddToCartQuantity(View view)
+    {
         final int MIN_QUANTITY = 1;
 
         if (addToCartQuantity == MIN_QUANTITY) {
@@ -140,23 +161,33 @@ public class ProductDetailActivity extends AppCompatActivity {
         tvAddToCartQuantity.setText(String.valueOf(addToCartQuantity));
     }
 
-    private void handleAddToCartListener(View view)
+    private void handleAddToCart(View view)
     {
+        if (!allowAddToCart)
+        {
+            return;
+        }
+
+        // Set add to cart flag to false to prevent user spamming add to cart button.
+        allowAddToCart = false;
+
         CartItemDto cartItem = CartItemDto.getInstanceToCallApi(
             ShoppingCartStateManager.getCurrentShoppingCartId(),
             productId,
             addToCartQuantity);
 
         try {
-            shoppingCartApiHandler.addToCart(cartItem, onAddToCartSuccessCallback, onAddToCartFailureCallback);
+            shoppingCartApiHandler.addToCart(cartItem, this::handleAddToCartSuccess, this::handleAddToCartFailed);
         }
-        catch (JSONException jsonException) {
+        catch (JSONException jsonException)
+        {
             Toast.makeText(this, "Have error with JSON body when add to cart", Toast.LENGTH_LONG).show();
         }
     }
 
     ///region Callback handlers
-    private void handleGetProductDetailResponse(JSONObject response) {
+    private void handleGetProductDetailSuccess(JSONObject response)
+    {
         DeserializeResult<ApiResponse> result = ApiResponse.DeserializeFromJson(response);
 
         if (!result.isSuccess) {
@@ -182,15 +213,20 @@ public class ProductDetailActivity extends AppCompatActivity {
             // Populate data into view component.
             Picasso.get().load(imageUrl).into(productImage);
             tvProductName.setText(productName);
+            productCategory.setText(productDetail.getCategory());
             tvProductPrice.setText(String.valueOf(unitPrice));
             tvProductDescription.setText(productDetail.getDescription());
+
+            // Set allow add to cart flag to true to let user add product to cart.
+            allowAddToCart = true;
         }
         catch (Exception exception) {
             Toast.makeText(this, "Có lỗi xảy ra", Toast.LENGTH_LONG).show();
         }
     }
 
-    private void handleGetProductDetailFailure(VolleyError error) {
+    private void handleGetProductDetailFailed(VolleyError error)
+    {
         Toast.makeText(this, "Lấy sản phẩm thất bại", Toast.LENGTH_LONG).show();
     }
 
@@ -207,14 +243,18 @@ public class ProductDetailActivity extends AppCompatActivity {
             imageUrl,
             addToCartQuantity);
 
+        // Update the shopping cart state and update again UI.
         shoppingCart.addCartItem(cartItem);
         ShoppingCartStateManager.addChanges();
+        loadCartTotalItems();
 
-        shoppingCartFragment.reloadShoppingCart();
+        allowAddToCart = true;
         Toast.makeText(this, "Thêm vào giỏ hàng thành công", Toast.LENGTH_LONG).show();
     }
 
-    private void handleAddToCartFailure(VolleyError error) {
+    private void handleAddToCartFailed(VolleyError error)
+    {
+        allowAddToCart = true;
         Toast.makeText(this, "Thêm vào giỏ hàng thất bại", Toast.LENGTH_LONG).show();
     }
     ///endregion

@@ -1,8 +1,8 @@
 package com.example.prm392_assignment_project.helpers;
 
 import android.content.Context;
+import android.os.Looper;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.android.volley.VolleyError;
 import com.example.prm392_assignment_project.api_handlers.commons.HttpStatusCodes;
@@ -10,8 +10,16 @@ import com.example.prm392_assignment_project.api_handlers.implementation.AuthApi
 import com.example.prm392_assignment_project.models.commons.ApiResponse;
 import com.example.prm392_assignment_project.models.commons.DeserializeResult;
 import com.example.prm392_assignment_project.models.dtos.auths.RefreshAccessTokenDto;
+import com.example.prm392_assignment_project.views.view_callbacks.ILogoutCallback;
+import com.example.prm392_assignment_project.views.view_callbacks.IVerifyAccessTokenFailedCallback;
+import com.example.prm392_assignment_project.views.view_callbacks.IVerifyAccessTokenSuccessCallback;
 
 import org.json.JSONObject;
+
+import android.os.Handler;
+import android.widget.Toast;
+
+import java.util.Objects;
 
 /**
  * Manage related data about user authentication
@@ -21,8 +29,8 @@ import org.json.JSONObject;
 public class UserAuthStateManager
 {
     // Private fields.
-    private final SharedPreferenceHelper sharedPreferenceHelper;
     private final Context context;
+    private final SharedPreferenceHelper sharedPreferenceHelper;
     private final AuthApiHandler authApiHandler;
 
     private String accessToken;
@@ -41,7 +49,7 @@ public class UserAuthStateManager
     {
         if (context == null)
         {
-            throw new IllegalArgumentException("The input context is null when init user auth state manager");
+            throw new IllegalArgumentException("The context is null when init user auth state manager");
         }
 
         this.context = context;
@@ -49,14 +57,32 @@ public class UserAuthStateManager
         sharedPreferenceHelper = new SharedPreferenceHelper(context);
     }
 
-    public static UserAuthStateManager getInstance(Context context)
+    public static void setUp(Context context)
     {
         if (instance == null)
         {
             instance = new UserAuthStateManager(context);
         }
+    }
+
+    public static UserAuthStateManager getInstance()
+    {
+        if (instance == null)
+        {
+            throw new IllegalArgumentException("The context is null when init user auth state manager");
+        }
 
         return instance;
+    }
+
+    public String getUserAvatarUrl()
+    {
+        return userAvatarUrl;
+    }
+
+    public String getUserFullName()
+    {
+        return userFullName;
     }
 
     public void setAccessToken(String accessToken)
@@ -73,6 +99,11 @@ public class UserAuthStateManager
         }
 
         return accessToken;
+    }
+
+    private void keepUserSignIn()
+    {
+        accessTokenIsStillValid = true;
     }
 
     public boolean isAccessTokenStillValid()
@@ -95,12 +126,32 @@ public class UserAuthStateManager
         sharedPreferenceHelper.putString(REFRESH_TOKEN_PREFERENCE_KEY, refreshToken);
     }
 
-    public void verifyCurrentAccessToken()
+    public void verifyCurrentAccessToken(
+        IVerifyAccessTokenSuccessCallback verifyAccessTokenSuccessCallback,
+        IVerifyAccessTokenFailedCallback verifyAccessTokenFailedCallback)
     {
-        authApiHandler.verifyAccessToken(
-            getAccessToken(),
-            this::handleOnVerifyAccessTokenSuccess,
-            this::handleOnVerifyAccessTokenFailed);
+        Handler handler = new android.os.Handler(Looper.getMainLooper());
+
+        Thread verifyAccessTokenThread = new Thread(() ->
+        {
+            handler.post(() ->
+            {
+                authApiHandler.verifyAccessToken(
+                    getAccessToken(),
+                    (response) ->
+                    {
+                        handleOnVerifyAccessTokenSuccess(response);
+                        verifyAccessTokenSuccessCallback.resolve();
+                    },
+                    (error) ->
+                    {
+                        handleOnVerifyAccessTokenFailed(error);
+                        Objects.requireNonNull(verifyAccessTokenFailedCallback).resolve();
+                    });
+            });
+        });
+
+        verifyAccessTokenThread.start();
     }
 
     private void handleOnVerifyAccessTokenSuccess(JSONObject response)
@@ -119,9 +170,7 @@ public class UserAuthStateManager
             JSONObject responseBody = apiResponse.getBodyAsJsonObject();
             userAvatarUrl = responseBody.getString("avatarUrl");
             userFullName = responseBody.getString("fullName");
-            accessTokenIsStillValid = true;
-
-            Toast.makeText(context, "avatarUrl : " + userAvatarUrl, Toast.LENGTH_SHORT).show();
+            keepUserSignIn();
         }
         catch (Exception exception)
         {
@@ -131,6 +180,12 @@ public class UserAuthStateManager
 
     private void handleOnVerifyAccessTokenFailed(VolleyError error)
     {
+        if (error.networkResponse == null)
+        {
+            Toast.makeText(context, "No internet connection, please turn on wifi", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (error.networkResponse.statusCode == HttpStatusCodes.UNAUTHORIZED)
         {
             Log.e("Access token is expired", "Please refresh again");
@@ -148,8 +203,6 @@ public class UserAuthStateManager
             {
                 Log.e("Refresh access token serialized error", exception.getMessage());
             }
-
-            return;
         }
     }
 
@@ -189,11 +242,64 @@ public class UserAuthStateManager
         accessTokenIsStillValid = false;
     }
 
+    public void clearAllState()
+    {
+        userAvatarUrl = null;
+        userFullName = null;
+    }
+
     public void clearAllTokens()
     {
         accessToken = null;
         refreshToken = null;
         sharedPreferenceHelper.removePreference(ACCESS_TOKEN_PREFERENCE_KEY);
         sharedPreferenceHelper.removePreference(REFRESH_TOKEN_PREFERENCE_KEY);
+        accessTokenIsStillValid = false;
+    }
+
+    public void logoutUser(ILogoutCallback logoutCallback)
+    {
+        Handler handler = new android.os.Handler(Looper.getMainLooper());
+        Thread logoutThread = new Thread(() ->
+        {
+            handler.post(() ->
+            {
+                try
+                {
+                    authApiHandler.logout(
+                        getAccessToken(),
+                        getRefreshToken(),
+                        (response) ->
+                        {
+                            handleLogoutSuccess(response);
+                            logoutCallback.resolve();
+                        },
+                        (error) ->
+                        {
+                            handleLogoutFailed(error);
+                            logoutCallback.resolve();
+                        });
+                }
+                catch (Exception exception)
+                {
+                    Toast.makeText(context, "Something wrong when try to build logout request", Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+
+        logoutThread.start();
+    }
+
+    private void handleLogoutSuccess(JSONObject response)
+    {
+        Log.i("Logout success", "Message from logout success==================");
+        clearAllState();
+        clearAllTokens();
+    }
+
+    private void handleLogoutFailed(VolleyError error)
+    {
+        clearAllState();
+        clearAllTokens();
     }
 }

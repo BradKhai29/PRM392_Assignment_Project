@@ -6,11 +6,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ApiResponse {
+public class ApiResponse
+{
     private boolean isSuccess;
     private String body;
 
-    public ApiResponse(boolean isSuccess, String body) {
+    public ApiResponse(boolean isSuccess, String body)
+    {
         this.isSuccess = isSuccess;
         this.body = body;
     }
@@ -23,17 +25,20 @@ public class ApiResponse {
         isSuccess = success;
     }
 
-    public JSONObject getBodyAsJsonObject() throws JSONException {
+    public JSONObject getBodyAsJsonObject() throws JSONException
+    {
         return new JSONObject(body);
     }
 
-    public JSONArray getBodyAsJsonArray() throws JSONException {
+    public JSONArray getBodyAsJsonArray() throws JSONException
+    {
         return new JSONArray(body);
     }
 
     public static DeserializeResult<ApiResponse> DeserializeFromJson(JSONObject jsonObject)
     {
-        try {
+        try
+        {
             boolean isSuccess = jsonObject.getBoolean("isSuccess");
             String body = jsonObject.getString("body");
 
@@ -41,7 +46,8 @@ public class ApiResponse {
 
             return DeserializeResult.success(response);
         }
-        catch (Exception exception) {
+        catch (Exception exception)
+        {
             return DeserializeResult.failed();
         }
     }

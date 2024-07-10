@@ -10,22 +10,37 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ShoppingCartDto {
+public class ShoppingCartDto
+{
     private String cartId;
     private int totalPrice;
-    private int totalItems = 0;
+    private int totalItems;
     private final Map<String, CartItemDto> cartItemMap;
 
-    private ShoppingCartDto() {
+    private ShoppingCartDto()
+    {
         cartItemMap = new HashMap<>();
+        totalItems = 0;
     }
 
-    private ShoppingCartDto(List<CartItemDto> cartItems) {
+    private ShoppingCartDto(List<CartItemDto> cartItems)
+    {
+        totalItems = 0;
         this.cartItemMap = new HashMap<>(cartItems.size());
 
-        for (CartItemDto cartItem : cartItems) {
+        for (CartItemDto cartItem : cartItems)
+        {
             cartItemMap.put(cartItem.productId, cartItem);
+            totalItems += cartItem.quantity;
         }
+    }
+
+    public static ShoppingCartDto empty(String cartId)
+    {
+        ShoppingCartDto shoppingCartDto = new ShoppingCartDto();
+        shoppingCartDto.cartId = cartId;
+
+        return shoppingCartDto;
     }
 
     public String getCartId() {
@@ -44,7 +59,8 @@ public class ShoppingCartDto {
         this.totalPrice = totalPrice;
     }
 
-    public void addCartItem(CartItemDto cartItem) {
+    public void addCartItem(CartItemDto cartItem)
+    {
         if (cartItemMap.containsKey(cartItem.productId)) {
             CartItemDto foundCartItem = cartItemMap.get(cartItem.productId);
             foundCartItem.quantity += cartItem.quantity;
@@ -57,7 +73,8 @@ public class ShoppingCartDto {
         totalPrice += cartItem.quantity * cartItem.unitPrice;
     }
 
-    public void increaseCartItem(String itemId, int increaseQuantity) {
+    public void increaseQuantity(String itemId, int increaseQuantity)
+    {
         if (cartItemMap.containsKey(itemId)) {
             CartItemDto foundCartItem = cartItemMap.get(itemId);
             foundCartItem.quantity += increaseQuantity;
@@ -67,7 +84,8 @@ public class ShoppingCartDto {
         }
     }
 
-    public void decreaseCartItem(String itemId, int decreaseQuantity) {
+    public void decreaseQuantity(String itemId, int decreaseQuantity)
+    {
         if (cartItemMap.containsKey(itemId)) {
             CartItemDto foundCartItem = cartItemMap.get(itemId);
             foundCartItem.quantity -= decreaseQuantity;
@@ -77,7 +95,8 @@ public class ShoppingCartDto {
         }
     }
 
-    public void removeCartItem(String itemId) {
+    public void removeCartItem(String itemId)
+    {
         if (cartItemMap.containsKey(itemId)) {
             CartItemDto foundCartItem = cartItemMap.get(itemId);
 
@@ -91,7 +110,8 @@ public class ShoppingCartDto {
         return totalItems;
     }
 
-    public List<CartItemDto> getCartItems() {
+    public List<CartItemDto> getCartItems()
+    {
         List<CartItemDto> cartItems = new ArrayList<>(cartItemMap.size());
 
         for (Map.Entry<String, CartItemDto> cartItemEntry : cartItemMap.entrySet()) {
@@ -101,14 +121,17 @@ public class ShoppingCartDto {
         return cartItems;
     }
 
-    public void clear() {
+    public void clear()
+    {
         cartItemMap.clear();
         totalItems = 0;
         totalPrice = 0;
     }
 
-    public static DeserializeResult<ShoppingCartDto> DeserializeFromJson(JSONObject jsonData) {
-        try {
+    public static DeserializeResult<ShoppingCartDto> DeserializeFromJson(JSONObject jsonData)
+    {
+        try
+        {
             String cartId = jsonData.getString("cartId");
             int totalPrice = jsonData.getInt("totalPrice");
 
@@ -116,22 +139,24 @@ public class ShoppingCartDto {
             JSONArray cartItemListInJson = jsonData.getJSONArray("cartItems");
 
             int cartItemsLength = cartItemListInJson.length();
-            List<CartItemDto> cartItems = new ArrayList<>(cartItemsLength);
             int totalItems = 0;
+            List<CartItemDto> cartItems = new ArrayList<>(cartItemsLength);
 
-            for (byte index = 0; index < cartItemsLength; index++) {
+            for (byte index = 0; index < cartItemsLength; index++)
+            {
                 JSONObject cartItemInJson = cartItemListInJson.getJSONObject(index);
 
                 DeserializeResult<CartItemDto> deserializeCartItemResult = CartItemDto.DeserializeFromJson(cartItemInJson);
 
-                if (!deserializeCartItemResult.isSuccess) {
+                if (!deserializeCartItemResult.isSuccess)
+                {
                     return DeserializeResult.failed();
                 }
 
                 CartItemDto cartItem = deserializeCartItemResult.value;
-                totalItems += cartItem.quantity;
-
                 cartItems.add(cartItem);
+
+                totalItems += cartItem.quantity;
             }
 
             ShoppingCartDto shoppingCartDto = new ShoppingCartDto(cartItems);
@@ -142,7 +167,8 @@ public class ShoppingCartDto {
 
             return DeserializeResult.success(shoppingCartDto);
         }
-        catch (Exception exception) {
+        catch (Exception exception)
+        {
             return DeserializeResult.failed();
         }
     }

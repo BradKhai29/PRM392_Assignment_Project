@@ -27,7 +27,9 @@ public class ShoppingCartApiHandler extends ApiHandler {
         super(context);
     }
 
-    public void initShoppingCart(IOnCallApiSuccessCallback successCallback, IOnCallApiFailedCallback failureCallback)
+    public void initShoppingCart(
+        IOnCallApiSuccessCallback successCallback,
+        IOnCallApiFailedCallback failureCallback)
     {
         RequestBuilder requestBuilder = RequestBuilder.getInstance(INIT_SHOPPING_CART_ENDPOINT);
 
@@ -40,7 +42,10 @@ public class ShoppingCartApiHandler extends ApiHandler {
         requestQueue.add(request);
     }
 
-    public void loadShoppingCartById(String cartId, IOnCallApiSuccessCallback successCallback, IOnCallApiFailedCallback failureCallback)
+    public void loadShoppingCartById(
+        String cartId,
+        IOnCallApiSuccessCallback successCallback,
+        IOnCallApiFailedCallback failureCallback)
     {
         final String apiUrl = LOAD_SHOPPING_CART_BY_ENDPOINT + "/" + cartId;
         RequestBuilder requestBuilder = RequestBuilder.getInstance(apiUrl);
@@ -62,11 +67,7 @@ public class ShoppingCartApiHandler extends ApiHandler {
         RequestBuilder requestBuilder = RequestBuilder.getInstance(ADD_ITEM_TO_CART_ENDPOINT);
 
         requestBuilder.withMethod(HttpMethod.POST);
-
-        // Init the request body.
-        JSONObject requestBody = cartItem.toJson();
-        requestBuilder.addJsonBody(requestBody);
-
+        requestBuilder.addJsonBody(cartItem.toJson());
         requestBuilder.addOnSuccessCallback(successCallback);
         requestBuilder.addOnFailureCallback(failureCallback);
 
@@ -83,11 +84,7 @@ public class ShoppingCartApiHandler extends ApiHandler {
         RequestBuilder requestBuilder = RequestBuilder.getInstance(DECREASE_CART_ITEM_QUANTITY_ENDPOINT);
 
         requestBuilder.withMethod(HttpMethod.PUT);
-
-        // Init the request body.
-        JSONObject requestBody = cartItemToDecrease.toJson();
-        requestBuilder.addJsonBody(requestBody);
-
+        requestBuilder.addJsonBody(cartItemToDecrease.toJson());
         requestBuilder.addOnSuccessCallback(successCallback);
         requestBuilder.addOnFailureCallback(failureCallback);
 

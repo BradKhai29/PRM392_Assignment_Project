@@ -8,7 +8,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GeneralProductInfoDto {
+public class GeneralProductInfoDto
+{
     private String id;
     private String name;
     private String category;
@@ -71,12 +72,14 @@ public class GeneralProductInfoDto {
             String category = jsonData.getString("category");
             int unitPrice = jsonData.getInt("unitPrice");
 
-            JSONArray imageJsonArray = jsonData.getJSONArray("imageUrls");
-            List<String> imageUrls = new ArrayList<>(imageJsonArray.length());
-            int imageArrayLength = imageJsonArray.length();
+            // Deserialize product image from json section.
+            JSONArray imageListInJson = jsonData.getJSONArray("imageUrls");
+            List<String> imageUrls = new ArrayList<>(imageListInJson.length());
+            int imageListLength = imageListInJson.length();
 
-            for (byte i = 0; i < imageArrayLength; i++) {
-                String imageUrl = imageJsonArray.getString(i);
+            for (byte i = 0; i < imageListLength; i++)
+            {
+                String imageUrl = imageListInJson.getString(i);
                 imageUrls.add(imageUrl);
             }
 

@@ -14,7 +14,8 @@ import com.example.prm392_assignment_project.views.view_callbacks.IOnAddToCartCa
 
 import java.util.List;
 
-public class ProductItemViewAdapter extends RecyclerView.Adapter<ProductItemViewHolder> {
+public class ProductItemViewAdapter extends RecyclerView.Adapter<ProductItemViewHolder>
+{
     private final Context context;
     private final List<GeneralProductInfoDto> products;
     private final IOnAddToCartCallback onAddToCartCallback;
@@ -31,8 +32,11 @@ public class ProductItemViewAdapter extends RecyclerView.Adapter<ProductItemView
 
     @NonNull
     @Override
-    public ProductItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.product_item, parent, false);
+    public ProductItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
+    {
+        View view = LayoutInflater
+            .from(parent.getContext())
+            .inflate(R.layout.product_item, parent, false);
 
         return new ProductItemViewHolder(view, context, onAddToCartCallback);
     }
@@ -41,13 +45,15 @@ public class ProductItemViewAdapter extends RecyclerView.Adapter<ProductItemView
     public void onBindViewHolder(@NonNull ProductItemViewHolder holder, int position) {
         GeneralProductInfoDto productInfo = products.get(position);
 
-        if (productInfo == null) {
+        if (productInfo == null)
+        {
             return;
         }
 
         // Populate product information.
         holder.setProductId(productInfo.getId());
         holder.setProductName(productInfo.getName());
+        holder.setProductCategory(productInfo.getCategory());
         holder.setImage(productInfo.getImageUrls().get(0));
         holder.setProductPrice(productInfo.getUnitPrice());
     }

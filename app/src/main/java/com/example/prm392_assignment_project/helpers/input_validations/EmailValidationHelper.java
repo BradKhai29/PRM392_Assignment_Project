@@ -5,11 +5,14 @@ import android.widget.EditText;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class EmailValidationHelper {
+public class EmailValidationHelper
+{
     public  static final String EMAIL_VALIDATION_REGEXP_PATTERN = "^[\\w\\.-]+@([\\w\\-]+\\.)+[A-Z]{2,4}$";
 
-    public static boolean isValid(String inputEmail) {
-        if (String.valueOf(inputEmail).isEmpty()) {
+    public static boolean isValid(String inputEmail)
+    {
+        if (String.valueOf(inputEmail).isEmpty())
+        {
             return false;
         }
 
@@ -19,7 +22,8 @@ public class EmailValidationHelper {
         return matcher.matches();
     }
 
-    public static boolean isValid(EditText editText) {
+    public static boolean isValid(EditText editText)
+    {
         return isValid(editText.getText().toString());
     }
 }
