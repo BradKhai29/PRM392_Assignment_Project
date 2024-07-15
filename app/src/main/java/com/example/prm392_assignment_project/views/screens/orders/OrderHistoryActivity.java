@@ -1,6 +1,12 @@
 package com.example.prm392_assignment_project.views.screens.orders;
 
+import android.content.IntentFilter;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -18,6 +24,7 @@ import com.example.prm392_assignment_project.helpers.ShoppingCartStateManager;
 import com.example.prm392_assignment_project.models.commons.ApiResponse;
 import com.example.prm392_assignment_project.models.commons.DeserializeResult;
 import com.example.prm392_assignment_project.models.dtos.orders.OrderHistoryItemDto;
+import com.example.prm392_assignment_project.receivers.WifiReceiver;
 import com.example.prm392_assignment_project.views.recyclerviews.orders.order_history.OrderHistoryItemViewAdapter;
 
 import org.json.JSONArray;
@@ -29,6 +36,10 @@ import java.util.List;
 public class OrderHistoryActivity extends AppCompatActivity {
     private OrderHistoryItemViewAdapter orderHistoryItemViewAdapter;
     private final List<OrderHistoryItemDto> orderHistoryItems = new ArrayList<>();
+    private ImageButton btnBackHome;
+    private Button btnBackHome2;
+    private LinearLayout emptySection;
+    private LinearLayout orderHistorySection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +52,16 @@ public class OrderHistoryActivity extends AppCompatActivity {
             return insets;
         });
 
+        // Bind components from view.
+        btnBackHome = findViewById(R.id.btnBackHome);
+        btnBackHome2 = findViewById(R.id.btnBackHome2);
+        emptySection = findViewById(R.id.empty_section);
+        orderHistorySection = findViewById(R.id.order_history_section);
+
+        // Set on-click listener.
+        btnBackHome.setOnClickListener(this::backHome);
+        btnBackHome2.setOnClickListener(this::backHome);
+
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
 
@@ -50,7 +71,16 @@ public class OrderHistoryActivity extends AppCompatActivity {
         orderHistoryItemViewAdapter = new OrderHistoryItemViewAdapter(orderHistoryItems, this);
         orderHistoryRecyclerView.setAdapter(orderHistoryItemViewAdapter);
 
-        getAllOrders();
+        // Register WifiReceiver.
+        IntentFilter checkWifiStateIntentFilter = new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION);
+        WifiReceiver wifiReceiver = new WifiReceiver(this::getAllOrders, null);
+
+        registerReceiver(wifiReceiver, checkWifiStateIntentFilter);
+    }
+
+    private void backHome(View view)
+    {
+        finish();
     }
 
     private void getAllOrders()
@@ -69,7 +99,8 @@ public class OrderHistoryActivity extends AppCompatActivity {
     {
         DeserializeResult<ApiResponse> result = ApiResponse.DeserializeFromJson(response);
 
-        if (!result.isSuccess) {
+        if (!result.isSuccess)
+        {
             Toast.makeText(this, "Có lỗi xảy ra", Toast.LENGTH_LONG).show();
             return;
         }
@@ -93,6 +124,17 @@ public class OrderHistoryActivity extends AppCompatActivity {
                     orderHistoryItems.add(deserializeResult.value);
                     orderHistoryItemViewAdapter.notifyItemInserted(index);
                 }
+            }
+
+            if (orderHistoryItems.isEmpty())
+            {
+                emptySection.setVisibility(View.VISIBLE);
+                orderHistorySection.setVisibility(View.GONE);
+            }
+            else
+            {
+                emptySection.setVisibility(View.GONE);
+                orderHistorySection.setVisibility(View.VISIBLE);
             }
         }
         catch (Exception exception)

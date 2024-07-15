@@ -74,6 +74,7 @@
                     android:textSize="@dimen/font_size_extra_small"
                     android:textAlignment="textStart"
                     android:text="Giá:"
+                    style="@style/text_dark_fw_normal"
                     android:layout_marginEnd="4dp"/>
                 <TextView
                     android:id="@+id/product_price"

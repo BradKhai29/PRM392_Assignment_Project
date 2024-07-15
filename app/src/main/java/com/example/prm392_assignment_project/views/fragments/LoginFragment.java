@@ -1,11 +1,13 @@
 package com.example.prm392_assignment_project.views.fragments;
 
+import android.media.Image;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +23,7 @@ import com.example.prm392_assignment_project.models.commons.ApiResponse;
 import com.example.prm392_assignment_project.models.commons.DeserializeResult;
 import com.example.prm392_assignment_project.models.dtos.auths.LoginRequestDto;
 import com.example.prm392_assignment_project.models.dtos.auths.LoginResponseDto;
+import com.example.prm392_assignment_project.views.screens.auths.AuthActivity;
 import com.example.prm392_assignment_project.views.view_callbacks.IGoToLoginCallback;
 import com.example.prm392_assignment_project.views.view_callbacks.IGoToRegisterCallback;
 import com.example.prm392_assignment_project.views.view_callbacks.IOnLoginSuccessCallback;
@@ -32,12 +35,14 @@ public class LoginFragment extends Fragment
     private EditText inputEmail;
     private EditText inputPassword;
     private Button btnLogin;
+    private ImageButton btnBackHome;
     private TextView btnGoToRegister;
 
     // Dependencies and Callbacks
     private UserAuthStateManager userAuthStateManager;
     private final IOnLoginSuccessCallback loginSuccessCallback;
     private final IGoToRegisterCallback goToRegisterCallback;
+    private AuthActivity.IGoToHomeCallback goToHomeCallback;
 
     public LoginFragment(
             IGoToRegisterCallback goToRegisterCallback,
@@ -67,13 +72,20 @@ public class LoginFragment extends Fragment
         inputEmail = view.findViewById(R.id.inputEmail);
         inputPassword = view.findViewById(R.id.inputPassword);
         btnLogin = view.findViewById(R.id.btnLogin);
+        btnBackHome = view.findViewById(R.id.btnBackHome);
         btnGoToRegister = view.findViewById(R.id.btnGoToRegister);
 
         // Set up on-click listeners.
         btnGoToRegister.setOnClickListener(this::goToRegister);
         btnLogin.setOnClickListener(this::login);
+        btnBackHome.setOnClickListener((view1) -> goToHomeCallback.resolve());
 
         return view;
+    }
+
+    public void goToHome(AuthActivity.IGoToHomeCallback goToHomeCallback)
+    {
+        this.goToHomeCallback = goToHomeCallback;
     }
 
     private void goToRegister(View view)

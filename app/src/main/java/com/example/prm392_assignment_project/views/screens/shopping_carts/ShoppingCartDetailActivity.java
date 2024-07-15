@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +32,10 @@ public class ShoppingCartDetailActivity extends AppCompatActivity {
     private Button btnGoToCheckout;
     private RecyclerView cartItemListRecyclerView;
     private CartItemViewAdapter cartItemViewAdapter;
+    private ImageButton btnBackHome;
+    private Button btnBackHome2;
+    private LinearLayout shoppingCartDetailSection;
+    private LinearLayout emptyCartSection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -48,6 +54,18 @@ public class ShoppingCartDetailActivity extends AppCompatActivity {
         tvTotalItems = findViewById(R.id.tvTotalItems);
         tvSubTotal = findViewById(R.id.tvSubtotal);
         btnGoToCheckout = findViewById(R.id.btnCheckout);
+        btnBackHome = findViewById(R.id.btnBackHome);
+        btnBackHome2 = findViewById(R.id.btnBackHome2);
+        emptyCartSection = findViewById(R.id.empty_cart_section);
+        shoppingCartDetailSection = findViewById(R.id.shopping_cart_detail_section);
+
+        // Set visibility for each section.
+        emptyCartSection.setVisibility(View.GONE);
+        shoppingCartDetailSection.setVisibility(View.VISIBLE);
+
+        // Set on-click event listeners.
+        btnBackHome.setOnClickListener(this::backHome);
+        btnBackHome2.setOnClickListener(this::backHome);
         btnGoToCheckout.setOnClickListener(this::goToCheckoutActivity);
 
         setUpRecyclerView();
@@ -70,6 +88,18 @@ public class ShoppingCartDetailActivity extends AppCompatActivity {
 
     private void loadShoppingCartInformation()
     {
+        boolean isCartEmpty = ShoppingCartStateManager.getTotalItemsInCart() == 0;
+        if (isCartEmpty)
+        {
+            emptyCartSection.setVisibility(View.VISIBLE);
+            shoppingCartDetailSection.setVisibility(View.GONE);
+        }
+        else
+        {
+            emptyCartSection.setVisibility(View.GONE);
+            shoppingCartDetailSection.setVisibility(View.VISIBLE);
+        }
+
         String totalItemsText = String.valueOf(ShoppingCartStateManager.getTotalItemsInCart());
         tvTotalItems.setText(totalItemsText);
 
@@ -80,6 +110,11 @@ public class ShoppingCartDetailActivity extends AppCompatActivity {
     private void handleOnUpdateShoppingCart(UpdateCartActionDetail updateCartActionDetail)
     {
         loadShoppingCartInformation();
+    }
+
+    private void backHome(View view)
+    {
+        finish();
     }
 
     private void goToCheckoutActivity(View view)

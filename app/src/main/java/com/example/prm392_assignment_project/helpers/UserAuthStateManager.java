@@ -182,7 +182,6 @@ public class UserAuthStateManager
     {
         if (error.networkResponse == null)
         {
-            Toast.makeText(context, "No internet connection, please turn on wifi", Toast.LENGTH_SHORT).show();
             return;
         }
 

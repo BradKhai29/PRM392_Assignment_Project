@@ -9,15 +9,29 @@
     android:background="@color/white"
     android:orientation="vertical">
 
-    <TextView
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Đăng nhập"
-        android:layout_gravity="center_horizontal"
-        android:textSize="@dimen/font_size_large"
-        android:textColor="@color/black"
-        android:textStyle="bold"
-        android:layout_marginTop="64dp"/>
+        android:orientation="horizontal"
+        android:layout_marginTop="64dp"
+        android:layout_gravity="center_horizontal">
+        <ImageButton
+            android:id="@+id/btnBackHome"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:backgroundTint="@color/black"
+            android:background="@drawable/rounded_button"
+            android:src="@drawable/ic_back"
+            android:layout_gravity="start|center_vertical"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Đăng nhập"
+            android:textSize="@dimen/font_size_large"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:layout_marginStart="8dp"/>
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -84,5 +98,4 @@
             android:textSize="@dimen/font_size_small"
             android:textColor="@color/black"/>
     </LinearLayout>
-
 </FrameLayout>

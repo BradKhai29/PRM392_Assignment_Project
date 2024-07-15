@@ -1,6 +1,10 @@
 package com.example.prm392_assignment_project.views.screens;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -16,6 +20,8 @@ import androidx.appcompat.widget.Toolbar;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -33,6 +39,7 @@ import com.example.prm392_assignment_project.helpers.UserAuthStateManager;
 import com.example.prm392_assignment_project.models.commons.ApiResponse;
 import com.example.prm392_assignment_project.models.commons.DeserializeResult;
 import com.example.prm392_assignment_project.models.dtos.products.GeneralProductInfoDto;
+import com.example.prm392_assignment_project.receivers.WifiReceiver;
 import com.example.prm392_assignment_project.views.fragments.BottomNavigationBar;
 import com.example.prm392_assignment_project.views.recyclerviews.products.ProductItemViewAdapter;
 import com.example.prm392_assignment_project.views.screens.auths.AuthActivity;
@@ -45,15 +52,16 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HomeActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private NavigationView leftSidebar;
     private Toolbar toolbar;
     private BottomNavigationBar bottomNavigationBar;
     private ProductItemViewAdapter productItemViewAdapter;
     private final List<GeneralProductInfoDto> products;
+    private boolean loadProductSuccess = false;
 
-    public HomeActivity() {
+    public MainActivity() {
         products = new ArrayList<>();
     }
 
@@ -68,18 +76,56 @@ public class HomeActivity extends AppCompatActivity {
             return insets;
         });
 
-        setUpDrawerLayoutAndLeftSidebar();
-
-        // Set up the user auth state manager for later operation.
-        // The set up is conducted at home activity to make this active through app lifecycle.
         UserAuthStateManager.setUp(this);
-        UserAuthStateManager.getInstance().verifyCurrentAccessToken(this::reloadLeftSidebar, this::reloadLeftSidebar);
 
+        // Register WifiReceiver.
+        IntentFilter checkWifiStateIntentFilter = new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION);
+        WifiReceiver wifiReceiver = new WifiReceiver(
+            this::getDataWhenHasInternetConnection,
+            this::notifyUserToEnableInternet);
+
+        registerReceiver(wifiReceiver, checkWifiStateIntentFilter);
+
+        // Set up view section.
+        setUpDrawerLayoutAndLeftSidebar();
         setUpRecyclerView();
         setUpShoppingCartManager();
         setUpBottomNavigationBarFragment();
 
+        if (!checkInternetPermission())
+        {
+            requestInternetPermission();
+            Toast.makeText(this, "Vui lòng cho phép app truy cập internet", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void getDataWhenHasInternetConnection()
+    {
+        if (loadProductSuccess)
+        {
+            return;
+        }
+
+        // Calling api to retrieve data section.
+        UserAuthStateManager.getInstance().verifyCurrentAccessToken(this::reloadLeftSidebar, this::reloadLeftSidebar);
+
         loadAllProductsFromApi();
+    }
+
+    private void notifyUserToEnableInternet()
+    {
+        Toast.makeText(this, "Vui lòng kết nối Internet để sử dụng app", Toast.LENGTH_SHORT).show();
+    }
+
+    private boolean checkInternetPermission() {
+        return ContextCompat.checkSelfPermission(this, android.Manifest.permission.INTERNET)
+                == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestInternetPermission() {
+        final int INTERNET_PERMISSION_CODE = 1;
+
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.INTERNET}, INTERNET_PERMISSION_CODE);
     }
 
     private void setUpDrawerLayoutAndLeftSidebar()
@@ -214,7 +260,7 @@ public class HomeActivity extends AppCompatActivity {
     private void setUpShoppingCartManager()
     {
         // Set up the shopping cart helper for later operation.
-        ShoppingCartStateManager.setupSharedPreferenceHelper(HomeActivity.this);
+        ShoppingCartStateManager.setupSharedPreferenceHelper(MainActivity.this);
     }
 
     private void setUpRecyclerView()
@@ -228,7 +274,7 @@ public class HomeActivity extends AppCompatActivity {
 
         productItemRecyclerView.setLayoutManager(linearLayoutManager);
 
-        productItemViewAdapter = new ProductItemViewAdapter(HomeActivity.this, products, this::handleOnAddToCart);
+        productItemViewAdapter = new ProductItemViewAdapter(MainActivity.this, products, this::handleOnAddToCart);
         productItemRecyclerView.setAdapter(productItemViewAdapter);
     }
     ///endregion
@@ -239,15 +285,19 @@ public class HomeActivity extends AppCompatActivity {
         Handler handler = new Handler(Looper.getMainLooper());
         Thread loadAllProductsThread = new Thread(() ->
         {
-            handler.post(() ->
-            {
-                // Calling api using product controller.
-                ProductApiHandler productApiHandler = new ProductApiHandler(this);
-                productApiHandler.getAllProducts(
-                4,
-                    this::handleLoadAllProductsSuccess,
-                    this::handleLoadAllProductsFailed);
-            });
+            try {
+                handler.post(() ->
+                {
+                    // Calling api using product controller.
+                    ProductApiHandler productApiHandler = new ProductApiHandler(this);
+                    productApiHandler.getAllProducts(
+                    4,
+                        this::handleLoadAllProductsSuccess,
+                        this::handleLoadAllProductsFailed);
+                });
+            } catch (Exception e) {
+
+            }
         });
 
         loadAllProductsThread.start();
@@ -291,6 +341,8 @@ public class HomeActivity extends AppCompatActivity {
                     productItemViewAdapter.notifyItemInserted(index);
                 }
             }
+
+            loadProductSuccess = true;
         }
         catch (Exception exception)
         {

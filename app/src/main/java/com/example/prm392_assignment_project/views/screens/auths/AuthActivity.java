@@ -40,6 +40,9 @@ public class AuthActivity extends AppCompatActivity {
         LoginFragment loginFragment = new LoginFragment(this::showRegisterFragment, this::handleLoginSuccess);
         RegisterFragment registerFragment = new RegisterFragment(this::showLoginFragment);
 
+        loginFragment.goToHome(this::backHome);
+        registerFragment.goToHome(this::backHome);
+
         loginFragmentContainerView = findViewById(R.id.login_fragment_container_view);
         registerFragmentContainerView = findViewById(R.id.register_fragment_container_view);
 
@@ -48,6 +51,16 @@ public class AuthActivity extends AppCompatActivity {
         fragmentTransaction.commit();
 
         showLoginFragment();
+    }
+
+    public interface IGoToHomeCallback
+    {
+        void resolve();
+    }
+
+    private void backHome()
+    {
+        finish();
     }
 
     private void showLoginFragment()

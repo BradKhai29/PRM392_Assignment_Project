@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,6 +21,7 @@ import com.example.prm392_assignment_project.api_handlers.implementation.AuthApi
 import com.example.prm392_assignment_project.helpers.input_validations.EmailValidationHelper;
 import com.example.prm392_assignment_project.helpers.input_validations.InputValidationHelper;
 import com.example.prm392_assignment_project.models.dtos.auths.RegisterDto;
+import com.example.prm392_assignment_project.views.screens.auths.AuthActivity;
 import com.example.prm392_assignment_project.views.view_callbacks.IGoToLoginCallback;
 
 import org.json.JSONObject;
@@ -34,6 +36,7 @@ public class RegisterFragment extends Fragment {
 
     // Callbacks.
     private final IGoToLoginCallback goToLoginCallback;
+    private AuthActivity.IGoToHomeCallback goToHomeCallback;
 
     public RegisterFragment(IGoToLoginCallback goToLoginCallback)
     {
@@ -64,13 +67,20 @@ public class RegisterFragment extends Fragment {
         Button btnRegister = view.findViewById(R.id.btnRegister);
         TextView btnGoToLogin = view.findViewById(R.id.tvGoToLogin);
         Button btnGoToLogin2 = view.findViewById(R.id.btnGoToLogin);
+        ImageButton btnBackHome = view.findViewById(R.id.btnBackHome);
 
         // Set up on-click listener.
         btnRegister.setOnClickListener(this::register);
         btnGoToLogin.setOnClickListener(this::goToLogin);
         btnGoToLogin2.setOnClickListener(this::goToLogin);
+        btnBackHome.setOnClickListener((view1) -> goToHomeCallback.resolve());
 
         return view;
+    }
+
+    public void goToHome(AuthActivity.IGoToHomeCallback goToHomeCallback)
+    {
+        this.goToHomeCallback = goToHomeCallback;
     }
 
     private void goToLogin(View view)

@@ -20,13 +20,27 @@
         android:focusable="true"
         android:clipToPadding="false"
         android:layout_alignParentTop="true">
-        <TextView
-            android:text="Giỏ hàng"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/font_size_medium"
-            style="@style/text_dark_fw_bold"
-            android:layout_gravity="start|center_vertical"/>
+            android:orientation="horizontal">
+            <ImageButton
+                android:id="@+id/btnBackHome"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:backgroundTint="@color/black"
+                android:background="@drawable/rounded_button"
+                android:src="@drawable/ic_back"
+                android:layout_gravity="start|center_vertical"/>
+            <TextView
+                android:text="Giỏ hàng"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:textSize="@dimen/font_size_medium"
+                style="@style/text_dark_fw_bold"
+                android:layout_gravity="start|center_vertical"/>
+        </LinearLayout>
         <FrameLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -58,8 +72,44 @@
                 android:layout_marginTop="-4dp"/>
         </FrameLayout>
     </FrameLayout>
-
+    
     <LinearLayout
+        android:id="@+id/empty_cart_section"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingTop="40dp"
+        android:layout_below="@+id/header_section"
+        android:gravity="center_horizontal"
+        android:background="@color/light_100">
+        <!-- Image link: https://www.flaticon.com/free-icons/empty" -->
+        <ImageView
+            android:layout_width="280dp"
+            android:layout_height="280dp"
+            android:src="@drawable/empty_cart"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="20dp"
+            android:text="Giỏ hàng đang trống"
+            android:textSize="@dimen/font_size_medium"
+            style="@style/text_dark_fw_normal"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnBackHome2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:textSize="@dimen/font_size_small"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:backgroundTint="@color/primary"
+            android:text="Tiếp tục mua sắm"
+            app:cornerRadius="@dimen/border_radius_small"/>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/shopping_cart_detail_section"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"

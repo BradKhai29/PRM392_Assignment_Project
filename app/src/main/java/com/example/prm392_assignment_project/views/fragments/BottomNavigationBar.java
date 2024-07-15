@@ -3,6 +3,8 @@ package com.example.prm392_assignment_project.views.fragments;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -26,6 +28,7 @@ import com.example.prm392_assignment_project.helpers.UserAuthStateManager;
 import com.example.prm392_assignment_project.models.commons.ApiResponse;
 import com.example.prm392_assignment_project.models.commons.DeserializeResult;
 import com.example.prm392_assignment_project.models.dtos.shoppingcarts.ShoppingCartDto;
+import com.example.prm392_assignment_project.receivers.WifiReceiver;
 import com.example.prm392_assignment_project.views.screens.GoogleMapActivity;
 import com.example.prm392_assignment_project.views.screens.auths.AuthActivity;
 import com.example.prm392_assignment_project.views.screens.orders.OrderHistoryActivity;
@@ -50,17 +53,19 @@ public class BottomNavigationBar extends Fragment {
     private final Context context;
     private final Activity containerActivity;
     private BadgeDrawable shoppingCartBadge;
+    private WifiReceiver wifiReceiver;
 
     public BottomNavigationBar(Activity containerActivity)
     {
         this.containerActivity = containerActivity;
         context = containerActivity;
-        shoppingCartApiHandler = new ShoppingCartApiHandler(context);
+        shoppingCartApiHandler = new ShoppingCartApiHandler(containerActivity);
         isLoadSuccess = false;
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
     }
 
@@ -80,8 +85,11 @@ public class BottomNavigationBar extends Fragment {
         setUpShoppingCartBadge(navigationView);
         setUpOnItemSelectedListener(navigationView);
 
-        // Loading the shopping cart from api.
-        loadShoppingCartFromApi();
+        // Register WifiReceiver.
+        IntentFilter checkWifiStateIntentFilter = new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION);
+        WifiReceiver wifiReceiver = new WifiReceiver(this::loadShoppingCartFromApi, null);
+
+        context.registerReceiver(wifiReceiver, checkWifiStateIntentFilter);
 
         return view;
     }
@@ -89,7 +97,8 @@ public class BottomNavigationBar extends Fragment {
     /**
      * Set the bottom padding value for this navigation bar for better looks and feel in UI.
      */
-    private void setPaddingBottomForNavigationBar() {
+    private void setPaddingBottomForNavigationBar()
+    {
         ViewCompat.setOnApplyWindowInsetsListener(containerActivity.getWindow().getDecorView(), (v, insets) ->
         {
             Insets systemInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -145,7 +154,7 @@ public class BottomNavigationBar extends Fragment {
     {
         if (!isLoadSuccess)
         {
-            Toast.makeText(context, "The fragment isn't completely loaded yet.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Không vào được mục này khi không có Internet.", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -235,13 +244,12 @@ public class BottomNavigationBar extends Fragment {
             ShoppingCartStateManager.loadShoppingCartSuccess();
 
             loadShoppingCartBadge();
-            Toast.makeText(context, "Tao giỏ hàng từ API thanh cong", Toast.LENGTH_LONG).show();
 
             isLoadSuccess = true;
         }
         catch (Exception exception)
         {
-            Toast.makeText(context, "Tao giỏ hàng từ API that bai", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, "Tạo giỏ hàng từ API thất bại", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -295,7 +303,6 @@ public class BottomNavigationBar extends Fragment {
     {
         if (error.networkResponse == null)
         {
-            Toast.makeText(context, "No internet connection found", Toast.LENGTH_LONG).show();
             return;
         }
 
