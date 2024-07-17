@@ -45,8 +45,8 @@ public class LoginFragment extends Fragment
     private AuthActivity.IGoToHomeCallback goToHomeCallback;
 
     public LoginFragment(
-            IGoToRegisterCallback goToRegisterCallback,
-            IOnLoginSuccessCallback loginSuccessCallback)
+        IGoToRegisterCallback goToRegisterCallback,
+        IOnLoginSuccessCallback loginSuccessCallback)
     {
         this.loginSuccessCallback = loginSuccessCallback;
         this.goToRegisterCallback = goToRegisterCallback;

@@ -57,7 +57,7 @@
         android:layout_below="@+id/header_section"
         android:gravity="center_horizontal"
         android:background="@color/light_100"
-        android:visibility="gone">
+        android:visibility="visible">
         <!-- Image link: https://www.flaticon.com/free-icons/empty" -->
         <ImageView
             android:layout_width="280dp"

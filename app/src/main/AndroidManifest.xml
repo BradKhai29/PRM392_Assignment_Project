@@ -19,10 +19,6 @@
         android:theme="@style/Theme.PRM392_Assignment_Project"
         tools:targetApi="31">
         <activity
-            android:name=".views.screens.TestActivity"
-            android:exported="false">
-        </activity>
-        <activity
             android:name=".views.screens.GoogleMapActivity"
             android:exported="false" />
         <activity

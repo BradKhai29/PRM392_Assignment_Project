@@ -36,11 +36,14 @@ public class RegisterFragment extends Fragment {
 
     // Callbacks.
     private final IGoToLoginCallback goToLoginCallback;
-    private AuthActivity.IGoToHomeCallback goToHomeCallback;
+    private final AuthActivity.IGoToHomeCallback goToHomeCallback;
 
-    public RegisterFragment(IGoToLoginCallback goToLoginCallback)
+    public RegisterFragment(
+        IGoToLoginCallback goToLoginCallback,
+        AuthActivity.IGoToHomeCallback goToHomeCallback)
     {
         this.goToLoginCallback = goToLoginCallback;
+        this.goToHomeCallback = goToHomeCallback;
     }
 
     @Override
@@ -76,11 +79,6 @@ public class RegisterFragment extends Fragment {
         btnBackHome.setOnClickListener((view1) -> goToHomeCallback.resolve());
 
         return view;
-    }
-
-    public void goToHome(AuthActivity.IGoToHomeCallback goToHomeCallback)
-    {
-        this.goToHomeCallback = goToHomeCallback;
     }
 
     private void goToLogin(View view)

@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -87,6 +88,7 @@ public class BottomNavigationBar extends Fragment {
 
         // Register WifiReceiver.
         IntentFilter checkWifiStateIntentFilter = new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION);
+        // Load the shopping cart from api when the wifi is enable and the internet is available.
         WifiReceiver wifiReceiver = new WifiReceiver(this::loadShoppingCartFromApi, null);
 
         context.registerReceiver(wifiReceiver, checkWifiStateIntentFilter);
@@ -106,7 +108,7 @@ public class BottomNavigationBar extends Fragment {
             if (!isPaddingBottomSet)
             {
                 // Subtract the insets from the bottom padding
-                paddingBottom = v.getPaddingBottom() - systemInsets.bottom * 2;
+                paddingBottom = v.getPaddingBottom() - systemInsets.bottom - 16;
 
                 v.setPadding(
                     v.getPaddingLeft(),
@@ -144,6 +146,7 @@ public class BottomNavigationBar extends Fragment {
         });
     }
 
+    ///region Navigate to other activity section.
     private void viewMap()
     {
         Intent viewMapIntent = new Intent(context, GoogleMapActivity.class);
@@ -152,12 +155,6 @@ public class BottomNavigationBar extends Fragment {
 
     private void viewShoppingCartDetail()
     {
-        if (!isLoadSuccess)
-        {
-            Toast.makeText(context, "Không vào được mục này khi không có Internet.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         Intent viewShoppingCartDetailIntent = new Intent(context, ShoppingCartDetailActivity.class);
 
         context.startActivity(viewShoppingCartDetailIntent);
@@ -169,6 +166,8 @@ public class BottomNavigationBar extends Fragment {
 
         context.startActivity(viewOrderHistoryIntent);
     }
+    ///endregion
+
     private void setUpShoppingCartBadge(BottomNavigationView navigationView)
     {
         final int EMPTY_CART_ITEMS = 0;
@@ -186,36 +185,22 @@ public class BottomNavigationBar extends Fragment {
         shoppingCartBadge.setNumber(shoppingCartTotalItems);
     }
 
-    private void loadShoppingCartFromApi() {
+    private void loadShoppingCartFromApi()
+    {
         if (ShoppingCartStateManager.isShoppingCartLoadSuccess())
         {
             return;
         }
 
         // Process to init or load the shopping cart from the webapi.
-        if (ShoppingCartStateManager.isShoppingCartPreferenceExisted()) {
-            ShoppingCartStateManager.loadShoppingCartIdFromPreference();
-
-            String cartId = ShoppingCartStateManager.getCurrentShoppingCartId();
-            Handler loadShoppingCartHandler = new Handler(Looper.getMainLooper());
-
-            Thread loadShoppingCartThread = new Thread(() ->
-            {
-                loadShoppingCartHandler.post(() ->
-                {
-                    shoppingCartApiHandler.loadShoppingCartById(
-                        cartId,
-                        this::handleLoadShoppingCartSuccess,
-                        this::handleLoadShoppingCartFailed);
-                });
-            });
-
+        if (ShoppingCartStateManager.isShoppingCartPreferenceExisted())
+        {
+            Thread loadShoppingCartThread = getLoadShoppingCartThread();
             loadShoppingCartThread.start();
         }
         else
         {
             Handler initShoppingCartHandler = new Handler(Looper.getMainLooper());
-
             Thread initShoppingCartThread = new Thread(() ->
             {
                 initShoppingCartHandler.post(() ->
@@ -228,6 +213,24 @@ public class BottomNavigationBar extends Fragment {
 
             initShoppingCartThread.start();
         }
+    }
+
+    @NonNull
+    private Thread getLoadShoppingCartThread() {
+        ShoppingCartStateManager.loadShoppingCartIdFromPreference();
+        String cartId = ShoppingCartStateManager.getCurrentShoppingCartId();
+        Handler loadShoppingCartHandler = new Handler(Looper.getMainLooper());
+
+        return new Thread(() ->
+        {
+            loadShoppingCartHandler.post(() ->
+            {
+                shoppingCartApiHandler.loadShoppingCartById(
+                    cartId,
+                    this::handleLoadShoppingCartSuccess,
+                    this::handleLoadShoppingCartFailed);
+            });
+        });
     }
 
     // Init shopping cart handler section.
@@ -278,7 +281,7 @@ public class BottomNavigationBar extends Fragment {
 
             if (!shoppingCartDtoDeserializeResult.isSuccess)
             {
-                Log.e("Không deserialize được", "Không thành công");
+                Log.e("Không deserialize được json", "Không thành công");
                 return;
             }
 

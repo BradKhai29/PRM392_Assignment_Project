@@ -33,8 +33,8 @@ public class ProductApiHandler extends ApiHandler {
         RequestBuilder requestBuilder = RequestBuilder.getInstance(GET_ALL_PRODUCTS_ENDPOINT + "/" + totalProducts);
 
         requestBuilder.withMethod(HttpMethod.GET);
-        requestBuilder.addOnFailureCallback(failureCallback);
         requestBuilder.addOnSuccessCallback(successCallback);
+        requestBuilder.addOnFailureCallback(failureCallback);
 
         JsonObjectRequest request = requestBuilder.buildJsonRequest();
 

@@ -38,10 +38,9 @@ public class AuthActivity extends AppCompatActivity {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
         LoginFragment loginFragment = new LoginFragment(this::showRegisterFragment, this::handleLoginSuccess);
-        RegisterFragment registerFragment = new RegisterFragment(this::showLoginFragment);
+        RegisterFragment registerFragment = new RegisterFragment(this::showLoginFragment, this::backHome);
 
         loginFragment.goToHome(this::backHome);
-        registerFragment.goToHome(this::backHome);
 
         loginFragmentContainerView = findViewById(R.id.login_fragment_container_view);
         registerFragmentContainerView = findViewById(R.id.register_fragment_container_view);

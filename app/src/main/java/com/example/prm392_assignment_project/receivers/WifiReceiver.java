@@ -53,7 +53,7 @@ public class WifiReceiver extends BroadcastReceiver
 
         if (connectivityManager == null)
         {
-            connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            connectivityManager = context.getSystemService(ConnectivityManager.class);
             connectivityManager.addDefaultNetworkActiveListener(this::handleOnNetworkActive);
         }
 
@@ -85,21 +85,5 @@ public class WifiReceiver extends BroadcastReceiver
                 wifiDisableCallback.resolve();
                 break;
         }
-    }
-
-    public boolean isWifiEnable()
-    {
-        switch (wifiState)
-        {
-            case WifiManager.WIFI_STATE_ENABLED:
-            case WifiManager.WIFI_STATE_ENABLING:
-                return true;
-
-            case WifiManager.WIFI_STATE_DISABLED:
-            case WifiManager.WIFI_STATE_DISABLING:
-                return false;
-        }
-
-        return false;
     }
 }

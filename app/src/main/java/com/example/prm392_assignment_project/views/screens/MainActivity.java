@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        // Set up the auth state manager at MainActivity for later operation with authentication.
         UserAuthStateManager.setUp(this);
 
         // Register WifiReceiver.
@@ -92,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
         setUpShoppingCartManager();
         setUpBottomNavigationBarFragment();
 
+        // Get user permission to access internet
         if (!checkInternetPermission())
         {
             requestInternetPermission();
@@ -103,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
     {
         if (loadProductSuccess)
         {
+            Toast.makeText(this, "Call this when internet", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -117,12 +120,14 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "Vui lòng kết nối Internet để sử dụng app", Toast.LENGTH_SHORT).show();
     }
 
-    private boolean checkInternetPermission() {
+    private boolean checkInternetPermission()
+    {
         return ContextCompat.checkSelfPermission(this, android.Manifest.permission.INTERNET)
                 == PackageManager.PERMISSION_GRANTED;
     }
 
-    private void requestInternetPermission() {
+    private void requestInternetPermission()
+    {
         final int INTERNET_PERMISSION_CODE = 1;
 
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.INTERNET}, INTERNET_PERMISSION_CODE);
@@ -139,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
         // Set up on click listeners for action tool bar.
         setSupportActionBar(toolbar);
         leftSidebar.bringToFront();
+
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
             this,
             drawerLayout,

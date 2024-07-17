@@ -1,16 +1,20 @@
 package com.example.prm392_assignment_project.views.screens;
 
 import android.Manifest;
-import android.content.Context;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -25,9 +29,12 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.security.Permission;
-
 public class GoogleMapActivity extends AppCompatActivity implements OnMapReadyCallback {
+    private static final int PERMISSION_REQUEST_CODE = 1;
+    private ImageButton btnBackHome;
+    private boolean allowToAccessCoarseLocation = false;
+    private static final LatLng SHOP_POSITION = new LatLng(15.969205643909286, 108.26086983817157);
+    private static final String SHOP_MARKER_TITLE = "NUT SHOP";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +47,10 @@ public class GoogleMapActivity extends AppCompatActivity implements OnMapReadyCa
             return insets;
         });
 
+        // Bind components from view.
+        btnBackHome = findViewById(R.id.btnBackHome);
+        btnBackHome.setOnClickListener(this::backHome);
+
         // Get a handle to the fragment and register the callback.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
 
@@ -51,11 +62,22 @@ public class GoogleMapActivity extends AppCompatActivity implements OnMapReadyCa
         {
             Toast.makeText(this, "Show map failed", Toast.LENGTH_SHORT).show();
         }
+
+        if (!checkAccessCoarseLocationPermission())
+        {
+            requestAccessCoarseLocationPermission();
+        }
+    }
+
+    private void backHome(View view)
+    {
+        finish();
     }
 
     // Get a handle to the GoogleMap object and display marker.
     @Override
-    public void onMapReady(@NonNull GoogleMap googleMap) {
+    public void onMapReady(@NonNull GoogleMap googleMap)
+    {
         LocationManager locationManager = getSystemService(LocationManager.class);
 
         if (locationManager == null)
@@ -64,10 +86,7 @@ public class GoogleMapActivity extends AppCompatActivity implements OnMapReadyCa
             return;
         }
 
-        boolean accessCoarseLocationPermissionGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-            == PackageManager.PERMISSION_GRANTED;
-
-        if (accessCoarseLocationPermissionGranted)
+        if (checkAccessCoarseLocationPermission())
         {
             Location currentLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             if (currentLocation == null)
@@ -76,26 +95,95 @@ public class GoogleMapActivity extends AppCompatActivity implements OnMapReadyCa
                 return;
             }
 
-            final LatLng shopPosition = new LatLng(15.969205643909286, 108.26086983817157);
-
-            double latitude = currentLocation.getLatitude();
-            double longitude = currentLocation.getLongitude();
-            LatLng currentPosition = new LatLng(latitude, longitude);
-
-            MarkerOptions currentPositionMarker = new MarkerOptions().position(currentPosition).title("My Location");
-            MarkerOptions shopPositionMarker = new MarkerOptions().position(shopPosition).title("Nut shops Location");
-            googleMap.addMarker(currentPositionMarker);
-            googleMap.addMarker(shopPositionMarker);
-
-            CameraPosition.Builder cameraPositionBuilder = new CameraPosition.Builder();
-            cameraPositionBuilder.target(currentPosition);
-            cameraPositionBuilder.zoom(16);
-            cameraPositionBuilder.bearing(currentLocation.getBearing());
-//            cameraPositionBuilder.tilt(70);
-
-            CameraPosition cameraPosition= cameraPositionBuilder.build();
-
-            googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+            showUserCoarseLocation(currentLocation, googleMap);
         }
+
+        showShopLocation(googleMap);
+    }
+
+    private void showUserCoarseLocation(Location currentLocation, GoogleMap googleMap)
+    {
+        // Get the latitude and longitude of the location.
+        double latitude = currentLocation.getLatitude();
+        double longitude = currentLocation.getLongitude();
+        LatLng currentPosition = new LatLng(latitude, longitude);
+
+        MarkerOptions currentPositionMarker = new MarkerOptions().position(currentPosition).title("My Location");
+        googleMap.addMarker(currentPositionMarker);
+    }
+
+    private void showShopLocation(GoogleMap googleMap)
+    {
+        MarkerOptions shopPositionMarker = new MarkerOptions().position(SHOP_POSITION).title(SHOP_MARKER_TITLE);
+        googleMap.addMarker(shopPositionMarker);
+
+        CameraPosition.Builder cameraPositionBuilder = new CameraPosition.Builder();
+        cameraPositionBuilder.target(SHOP_POSITION);
+        cameraPositionBuilder.zoom(16);
+
+        CameraPosition cameraPosition = cameraPositionBuilder.build();
+
+        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
+    {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == PERMISSION_REQUEST_CODE)
+        {
+            // Check the grant result and ensure it contains permission granted value.
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            {
+                allowToAccessCoarseLocation = true;
+            }
+        }
+    }
+
+    private boolean checkAccessCoarseLocationPermission()
+    {
+        allowToAccessCoarseLocation = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+            == PackageManager.PERMISSION_GRANTED;
+
+        return allowToAccessCoarseLocation;
+    }
+
+    private void requestAccessCoarseLocationPermission()
+    {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION))
+        {
+            AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
+
+            alertBuilder.setMessage("Vui lòng cho phép app truy cập vào vị trí hiện tại của bạn để tính năng này hoạt động bình thường");
+            alertBuilder.setTitle("Cấp quyền truy cập vị trí");
+            alertBuilder.setPositiveButton("Cho phép", this::onClickToAcceptPermission);
+            alertBuilder.setNegativeButton("Đóng", this::onClickToRejectPermission);
+
+            alertBuilder.show();
+        }
+        else
+        {
+            requestRuntimePermission();
+        }
+    }
+
+    private void requestRuntimePermission()
+    {
+        ActivityCompat.requestPermissions(
+            this,
+            new String[] {Manifest.permission.ACCESS_COARSE_LOCATION},
+            PERMISSION_REQUEST_CODE);
+    }
+
+    private void onClickToAcceptPermission(DialogInterface dialog, int which)
+    {
+        requestRuntimePermission();
+        dialog.dismiss();
+    }
+
+    private void onClickToRejectPermission(DialogInterface dialog, int which)
+    {
+        dialog.dismiss();
     }
 }
